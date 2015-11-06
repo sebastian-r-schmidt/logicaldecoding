@@ -2,46 +2,78 @@ package de.swm.nis;
 
 public class Cell {
 
-	public enum Type{text,integer,date,geometry,real};
+	public enum Type {
+		text, integer, date, geometry, real
+	};
+
 	private String name;
 	private String value;
 	private Type type;
-	
+
+
+
 	public Cell(Cell.Type type, String name, String value) {
 		this.value = value;
 		this.type = type;
 		this.name = name;
+		unquoteStrings();
 	}
-	
+
+
+
 	public Cell(String type, String name, String value) {
 		this.name = name;
 		this.type = Type.valueOf(type);
 		this.value = value;
+		unquoteStrings();
 	}
+
+
+
+	private void unquoteStrings() {
+		if (this.type == Type.text || this.type == Type.date || this.type == Type.geometry) {
+			int length = value.length();
+			value = value.substring(2, length - 2);
+		}
+	}
+
+
 
 	public String getValue() {
 		return value;
 	}
 
+
+
 	public void setValue(String value) {
 		this.value = value;
 	}
+
+
 
 	public Type getType() {
 		return type;
 	}
 
+
+
 	public void setType(Type type) {
 		this.type = type;
 	}
+
+
 
 	public String getName() {
 		return name;
 	}
 
+
+
 	public void setName(String name) {
 		this.name = name;
 	}
+
+
 
 	@Override
 	public int hashCode() {
@@ -52,6 +84,8 @@ public class Cell {
 		result = prime * result + ((value == null) ? 0 : value.hashCode());
 		return result;
 	}
+
+
 
 	@Override
 	public boolean equals(Object obj) {
@@ -77,10 +111,11 @@ public class Cell {
 		return true;
 	}
 
+
+
 	@Override
 	public String toString() {
 		return "Cell [name=" + name + ", type=" + type + ", value=" + value + "]";
 	}
 
-	
 }
