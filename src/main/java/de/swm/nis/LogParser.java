@@ -51,11 +51,12 @@ public class LogParser {
 	 * @return a row object describing the update.
 	 */
 	public Row parseRow(String message) {
-		Row row = new Row();
+		Row row = null;
 		List<String> tokens = splitKeyValuePairs(message);
-		row.setTableName(tokens.get(1).substring(0, tokens.get(1).length() - 1));
+		String tableName = tokens.get(1).substring(0, tokens.get(1).length() - 1);
 		switch (tokens.get(2)) {
 			case "INSERT:": {
+				row = new Row(tableName, Row.Type.insert);
 				// leave "old values" empty
 				for (int i = 3; i < tokens.size(); i++) {
 					row.getNewValues().add(parseCell(tokens.get(i)));
@@ -63,6 +64,7 @@ public class LogParser {
 				break;
 			}
 			case "UPDATE:": {
+				row = new Row(tableName, Row.Type.update);
 				boolean oldValues = true;
 				for (int i = 3; i < tokens.size(); i++) {
 					String token = tokens.get(i);
@@ -81,6 +83,7 @@ public class LogParser {
 				break;
 			}
 			case "DELETE:": {
+				row = new Row(tableName, Row.Type.delete);
 				for (int i = 3; i < tokens.size(); i++) {
 					// leave "new values" empty
 					row.getOldValues().add(parseCell(tokens.get(i)));
