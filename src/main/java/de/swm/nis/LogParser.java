@@ -3,6 +3,9 @@ package de.swm.nis;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
@@ -11,6 +14,9 @@ import com.google.common.collect.Lists;
 
 public class LogParser {
 
+	
+	private static final Logger log = LoggerFactory.getLogger(LogParser.class);
+	
 	/**
 	 * parses a log line into a Row object
 	 * 
@@ -26,11 +32,11 @@ public class LogParser {
 		String startToken = message.substring(0, 6);
 		switch (startToken) {
 			case "BEGIN ": {
-				log("Transaction start found, ignoring");
+				log.debug("Transaction start found, ignoring");
 				break;
 			}
 			case "COMMIT": {
-				log("Transaction end found, ignoring");
+				log.debug("Transaction end found, ignoring");
 				break;
 			}
 			case "table ": {
@@ -116,9 +122,9 @@ public class LogParser {
 	}
 
 
-
+	
 	/**
-	 * Splits a List of tokens separated by space into its parts. Keeps track of quoting: '' starts and ends a string
+	 * Splits a List of tokens separated by space into its parts. Keeps track of quoting: ' starts and ends a string
 	 * within spaces are not considered as delimiters.
 	 * 
 	 * @param message
@@ -126,7 +132,7 @@ public class LogParser {
 	 * @return List of Strings, the parts.
 	 */
 	public List<String> splitKeyValuePairs(String message) {
-		// within '' escaped Strings blanks are not consiedered as delimiters
+		// within ' escaped Strings blanks are not considered as delimiters
 		List<String> tokens = Lists.newArrayList(Splitter.on(' ').trimResults().omitEmptyStrings().split(message));
 
 		List<String> returnvalues = new ArrayList<String>(tokens.size());
@@ -135,7 +141,7 @@ public class LogParser {
 		StringBuffer collector = new StringBuffer();
 		for (String token : tokens) {
 			int singleQuoteCount = CharMatcher.is('\'').countIn(token);
-			if (singleQuoteCount == 2) {
+			if (singleQuoteCount == 1) {
 				// Begin of Quoting, collect all incoming tokens into a string
 				if (!quoteOn) {
 					quoteOn = true;
@@ -154,13 +160,6 @@ public class LogParser {
 			}
 		}
 		return returnvalues;
-	}
-
-
-
-	// TODO setup logging
-	private void log(String message) {
-		System.out.println(message);
 	}
 
 }

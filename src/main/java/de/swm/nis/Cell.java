@@ -29,11 +29,12 @@ public class Cell {
 	}
 
 
-
 	private void unquoteStrings() {
-		if (this.type == Type.text || this.type == Type.date || this.type == Type.geometry) {
-			int length = value.length();
-			value = value.substring(2, length - 2);
+		if (!value.equals("null")) {
+			if (this.type == Type.text || this.type == Type.date || this.type == Type.geometry) {
+				int length = value.length();
+				value = value.substring(1, length - 1);
+			}
 		}
 	}
 
