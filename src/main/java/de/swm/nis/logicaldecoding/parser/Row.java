@@ -1,10 +1,15 @@
-package de.swm.nis;
+package de.swm.nis.logicaldecoding.parser;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
 
+/**
+ * Represents a changed Row in a Database. Contains old an new values.
+ * @author Schmidt.Sebastian2
+ *
+ */
 public class Row {
 
 	public enum Type {

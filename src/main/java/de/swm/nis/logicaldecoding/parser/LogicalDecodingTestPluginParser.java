@@ -1,21 +1,28 @@
-package de.swm.nis;
+package de.swm.nis.logicaldecoding.parser;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 
 
-
-public class LogParser {
+/**
+ * This class is able to parse the output of postgreSQLs test_decoding logical decoding plugin
+ * int Java Objects (de.swm.nis.logicalDecoding.domain.Row and de.swm.nis.logicalDecoding.domain.Cell)
+ * @author Schmidt.Sebastian2
+ *
+ */
+@Component
+public class LogicalDecodingTestPluginParser {
 
 	
-	private static final Logger log = LoggerFactory.getLogger(LogParser.class);
+	private static final Logger log = LoggerFactory.getLogger(LogicalDecodingTestPluginParser.class);
 	
 	/**
 	 * parses a log line into a Row object

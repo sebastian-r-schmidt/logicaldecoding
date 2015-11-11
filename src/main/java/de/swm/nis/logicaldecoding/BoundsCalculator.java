@@ -1,21 +1,31 @@
-package de.swm.nis;
+package de.swm.nis.logicaldecoding;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKBReader;
 
-import de.swm.nis.Cell.Type;
+import de.swm.nis.logicaldecoding.parser.Cell.Type;
+import de.swm.nis.logicaldecoding.parser.Cell;
+import de.swm.nis.logicaldecoding.parser.Row;
 
-public class RegionParser {
+/**
+ * Calculates the Minimum bounding Rectangle (Bounding Box) for a
+ * single Row or a List of Row Objects.
+ * @author Schmidt.Sebastian2
+ *
+ */
+@Component
+public class BoundsCalculator {
 	
-	private static final Logger log = LoggerFactory.getLogger(RegionParser.class);
+	private static final Logger log = LoggerFactory.getLogger(BoundsCalculator.class);
 
 	public Envelope findAffectedRegion(Row row) throws ParseException {
 		

@@ -1,5 +1,11 @@
-package de.swm.nis;
+package de.swm.nis.logicaldecoding.parser;
 
+/**
+ * Represents a single Cell inside a database: The entry inside a column at a specific Row.
+ * Contains name, type and value information.
+ * @author Schmidt.Sebastian2
+ *
+ */
 public class Cell {
 
 	public enum Type {

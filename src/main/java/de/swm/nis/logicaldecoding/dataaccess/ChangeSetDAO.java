@@ -1,6 +1,11 @@
-package de.swm.nis;
+package de.swm.nis.logicaldecoding.dataaccess;
 
-public class ChangeSet {
+/**
+ * Data access object for Changesets from PostgreSQL Replication slots.
+ * @author Schmidt.Sebastian2
+ *
+ */
+public class ChangeSetDAO {
 
 	private String location;
 	private long transactionId;

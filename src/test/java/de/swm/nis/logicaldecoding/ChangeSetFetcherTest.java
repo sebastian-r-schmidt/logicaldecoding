@@ -1,9 +1,12 @@
-package de.swm.nis;
+package de.swm.nis.logicaldecoding;
 
 import java.util.List;
 
 import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
+
+import de.swm.nis.logicaldecoding.dataaccess.ChangeSetDAO;
+import de.swm.nis.logicaldecoding.dataaccess.ChangeSetFetcher;
 
 public class ChangeSetFetcherTest {
 
@@ -14,9 +17,9 @@ public class ChangeSetFetcherTest {
 	public void testFetchChanges() {
 		JdbcTemplate mock = new JdbcTemplate();
 		ChangeSetFetcher fetcher = new ChangeSetFetcher();
-		List<ChangeSet> changes = fetcher.fetch("testslot", 100);
+		List<ChangeSetDAO> changes = fetcher.fetch("testslot", 100);
 		//TODO Test if data is correctly contained as expected.
-		for (ChangeSet change:changes) {
+		for (ChangeSetDAO change:changes) {
 			System.out.println(change);
 		}	
 	}

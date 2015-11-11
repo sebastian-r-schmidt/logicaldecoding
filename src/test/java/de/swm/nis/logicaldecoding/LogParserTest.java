@@ -1,4 +1,4 @@
-package de.swm.nis;
+package de.swm.nis.logicaldecoding;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -10,18 +10,22 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
+import de.swm.nis.logicaldecoding.parser.Cell;
+import de.swm.nis.logicaldecoding.parser.LogicalDecodingTestPluginParser;
+import de.swm.nis.logicaldecoding.parser.Row;
+
 
 
 //@RunWith(SpringJUnit4ClassRunner.class)
 public class LogParserTest {
 
-	private LogParser parser;
+	private LogicalDecodingTestPluginParser parser;
 
 
 
 	@Before
 	public void setup() {
-		parser = new LogParser();
+		parser = new LogicalDecodingTestPluginParser();
 	}
 
 

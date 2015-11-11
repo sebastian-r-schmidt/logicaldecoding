@@ -1,4 +1,4 @@
-package de.swm.nis.gwc;
+package de.swm.nis.logicaldecoding.gwc.seed;
 
 
 public class Bounds {

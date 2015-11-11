@@ -1,14 +1,19 @@
-package de.swm.nis.gwc;
+package de.swm.nis.logicaldecoding.gwc.seed;
 
-public class GwcSeedOperation {
+/**
+ * Represents the SeedRequest Datatype inside GeoWebCache
+ * @author Schmidt.Sebastian2
+ *
+ */
+public class GwcSeedDAO {
 	
 	private SeedRequest seedRequest;
 
-	public GwcSeedOperation() {
+	public GwcSeedDAO() {
 		
 	}
 	
-	public GwcSeedOperation(SeedRequest request) {
+	public GwcSeedDAO(SeedRequest request) {
 		this.seedRequest = request;
 	}
 	

@@ -1,15 +1,15 @@
-package de.swm.nis;
+package de.swm.nis.logicaldecoding.gwc;
 
 import org.junit.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import de.swm.nis.gwc.Bounds;
-import de.swm.nis.gwc.Coordinates;
-import de.swm.nis.gwc.GwcSeedOperation;
-import de.swm.nis.gwc.SeedRequest;
-import de.swm.nis.gwc.Srs;
+import de.swm.nis.logicaldecoding.gwc.seed.Bounds;
+import de.swm.nis.logicaldecoding.gwc.seed.Coordinates;
+import de.swm.nis.logicaldecoding.gwc.seed.GwcSeedDAO;
+import de.swm.nis.logicaldecoding.gwc.seed.SeedRequest;
+import de.swm.nis.logicaldecoding.gwc.seed.Srs;
 
 public class SeedOperationTest {
 
@@ -17,7 +17,7 @@ public class SeedOperationTest {
 	@Test
 	public void testCreateSeedOperation() throws JsonProcessingException {
 		
-		GwcSeedOperation seedOperation = new GwcSeedOperation();
+		GwcSeedDAO seedOperation = new GwcSeedDAO();
 		
 		SeedRequest seed = new SeedRequest();
 		seed.setName("testlayer");
