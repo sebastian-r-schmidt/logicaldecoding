@@ -3,17 +3,20 @@ package de.swm.nis.logicaldecoding;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Future;
+
+import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
-import com.vividsolutions.jts.geom.Envelope;
 
 import de.swm.nis.logicaldecoding.dataaccess.ChangeSetDAO;
 import de.swm.nis.logicaldecoding.dataaccess.ChangeSetFetcher;
@@ -25,6 +28,7 @@ import de.swm.nis.logicaldecoding.tracktable.TrackTablePublisher;
 
 
 @Service
+@EnableAsync
 public class RefreshCacheService {
 
 	private static final Logger log = LoggerFactory.getLogger(RefreshCacheService.class);
@@ -45,10 +49,23 @@ public class RefreshCacheService {
 	private int numChangestoFetch;
 
 	@Value("${scheduling.interval}")
-	private int SchedulingDelay;
+	private int schedulingDelay;
 
 	@Value("#{'${filter.includeSchema}'.split(',')}")
 	private List<String> schemasToInclude;
+
+	@Value("${gwc.doSeed}")
+	private boolean doSeed;
+
+	@Value("${tracktable.doPublish}")
+	private boolean doPublish;
+
+
+
+	@PostConstruct
+	public void init() {
+		log.info("looking for changes in Database every " + schedulingDelay + " milliseconds.");
+	}
 
 
 
@@ -85,29 +102,20 @@ public class RefreshCacheService {
 
 			Collection<Row> relevantRows = Collections2.filter(rows, predicate);
 
-			log.info("Calculating affected Regions...");
-			Collection<Envelope> envelopes = findAffectedRegion(relevantRows);
-			log.info("sending " + envelopes.size() + " Seed Requests to geoWebCache...");
-			for (Envelope env : envelopes) {
-				log.info(env.toString());
-				gwcInvalidator.postSeedRequest(env);
+			if (relevantRows.size() == 0) {
+				// Nothing to do
+				return;
 			}
 
-			log.info("publishing change metadata to track table...");
-			trackTablePublisher.publish(relevantRows);
-		}
-	}
-
-
-
-	private Collection<Envelope> findAffectedRegion(Collection<Row> rows) {
-		Collection<Envelope> envelopes = new ArrayList<Envelope>();
-		for (Row row : rows) {
-			if (row != null) {
-				envelopes.add(row.getEnvelope());
+			// TODO call these independently asynchronous in order to avoid errors on the first to be propagated to the
+			// second.
+			if (doSeed) {
+				Future<String> seeding = gwcInvalidator.postSeedRequests(relevantRows);
+			}
+			if (doPublish) {
+				Future<String> publishing = trackTablePublisher.publish(relevantRows);
 			}
 		}
-		return envelopes;
 	}
 
 }

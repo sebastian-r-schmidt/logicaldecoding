@@ -1,13 +1,21 @@
 package de.swm.nis.logicaldecoding.tracktable;
 
 import java.sql.Types;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.Future;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Repository;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import com.vividsolutions.jts.geom.Envelope;
@@ -21,6 +29,8 @@ import de.swm.nis.logicaldecoding.parser.Row;
 @Repository
 public class TrackTablePublisher {
 	
+	private static final Logger log = LoggerFactory.getLogger(TrackTablePublisher.class);
+	
 	@Autowired
 	private JdbcTemplate template;
 	
@@ -30,10 +40,16 @@ public class TrackTablePublisher {
 	@Value("${tracktable.tablename}")
 	private String tableName;
 	
-	public void publish(Collection<Row> rows) {
+	@Value("#{'${tracktable.metainfo.searchpatterns}'.split(',')}")
+	private List<String> metaInfoSearchPatterns;
+	
+	@Async
+	public Future<String> publish(Collection<Row> rows) {
+		log.info("Publishing " + rows.size()+" change metadata to track table");
 		for(Row row:rows) {
 			publish(row);
 		}
+		return new AsyncResult<String>("success");
 	}
 	
 	public void publish(Row row) {
@@ -42,7 +58,7 @@ public class TrackTablePublisher {
 		GeometryFactory geomFactory = new GeometryFactory(new PrecisionModel(), 31468);
 		WKBWriter wkbWriter = new WKBWriter(2, true);
 		byte[] wkb = wkbWriter.write(geomFactory.toGeometry(envelope));
-		String metadata = extractMetaData(row);
+		String metadata = extractMetadata(row);
 		String changedTableSchema = row.getSchemaName();
 		String changedTableName = Iterables.get(Splitter.on('.').split(row.getTableName()),1);
 		String type = row.getType().toString();
@@ -55,40 +71,32 @@ public class TrackTablePublisher {
 		
 	}
 	
-	private String extractMetaData(Row row) {
+	private String extractMetadata(Row row) {
 		switch(row.getType()) {
 			case delete:
 			{
-				return extractObjectId(row.getOldValues()) + ", " +extractChangeInfos(row.getOldValues());
+				return extractMetadata(row.getOldValues());
 			}
 			default:
 			{
-				return extractObjectId(row.getNewValues()) + ", " + extractChangeInfos(row.getNewValues());
+				return extractMetadata(row.getNewValues());
 			}
 			
 		}
 	}
 	
-	private String extractObjectId(Collection<Cell> cells) {
+	
+	private String extractMetadata(Collection<Cell> cells) {
+		List<String> parts = new ArrayList<String>();
 		for (Cell cell:cells) {
-			if (cell.getName().endsWith("_id") && cell.getType().equals(Cell.Type.integer)) {
-				return cell.getName() + ": " + cell.getValue();
+			for (String pattern:metaInfoSearchPatterns) {
+			if (cell.getName().startsWith(pattern) || cell.getName().endsWith(pattern)) {
+				parts.add(new String(cell.getName() + ": " + cell.getValue()));
+				}
 			}
 		}
-		return "<ID unknown>";
+		return Joiner.on(", ").join(parts);
 	}
 	
-	private String extractChangeInfos(Collection<Cell> cells) {
-		StringBuffer changeInfo = new StringBuffer(); 
-		for (Cell cell:cells) {
-			if (cell.getName().equals("geaendert_am") || cell.getName().equals("erfasst_am")) {
-				changeInfo.append(cell.getName() + ": " + cell.getValue() + ", ");
-			}
-		}
-		if (changeInfo.length()== 0) {
-			return "<Changedate unknown>";
-		}
-		return changeInfo.toString();
-	}
 	
 }

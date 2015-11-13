@@ -1,12 +1,20 @@
 package de.swm.nis.logicaldecoding.gwc;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.concurrent.Future;
 
 import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -17,6 +25,7 @@ import de.swm.nis.logicaldecoding.gwc.seed.Coordinates;
 import de.swm.nis.logicaldecoding.gwc.seed.GwcSeedDAO;
 import de.swm.nis.logicaldecoding.gwc.seed.SeedRequest;
 import de.swm.nis.logicaldecoding.gwc.seed.Srs;
+import de.swm.nis.logicaldecoding.parser.Row;
 
 
 
@@ -31,6 +40,8 @@ import de.swm.nis.logicaldecoding.gwc.seed.Srs;
 public class GWCInvalidator {
 
 	private RestTemplate template;
+
+	private static final Logger log = LoggerFactory.getLogger(GWCInvalidator.class);
 
 
 
@@ -67,7 +78,23 @@ public class GWCInvalidator {
 
 
 
-	public void postSeedRequest(Envelope envelope) {
+	@Async
+	public Future<String> postSeedRequests(Collection<Row> rows) {
+
+		log.debug("Calculating affected Regions...");
+		Collection<Envelope> envelopes = findAffectedRegion(rows);
+		log.info("sending " + envelopes.size() + " Seed Requests to geoWebCache...");
+		for (Envelope env : envelopes) {
+			log.debug("Envelope: " + env.toString());
+			postSeedRequest(env);
+		}
+		return new AsyncResult<String>("Success");
+	}
+
+
+
+	//TODO find out if we were successfull and catch exceptions on errors (HTTP 500, no connection possible, ....)
+	private void postSeedRequest(Envelope envelope) {
 
 		String gwcurl = gwcBaseUrl + "seed/" + layername + ".json";
 
@@ -79,7 +106,20 @@ public class GWCInvalidator {
 
 		HttpEntity<GwcSeedDAO> httpentity = new HttpEntity<GwcSeedDAO>(new GwcSeedDAO(request), createHeaders(
 				gwcUserName, gwcPassword));
-		template.exchange(gwcurl, HttpMethod.POST, httpentity, String.class);
+		ResponseEntity response = template.exchange(gwcurl, HttpMethod.POST, httpentity, String.class);
+		log.info("HTTP Return code: " + response.getStatusCode());
+	}
+
+
+
+	private Collection<Envelope> findAffectedRegion(Collection<Row> rows) {
+		Collection<Envelope> envelopes = new ArrayList<Envelope>();
+		for (Row row : rows) {
+			if (row != null) {
+				envelopes.add(row.getEnvelope());
+			}
+		}
+		return envelopes;
 	}
 
 
