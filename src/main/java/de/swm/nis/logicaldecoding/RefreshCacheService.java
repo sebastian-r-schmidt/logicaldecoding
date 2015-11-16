@@ -3,6 +3,7 @@ package de.swm.nis.logicaldecoding;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import javax.annotation.PostConstruct;
@@ -59,12 +60,15 @@ public class RefreshCacheService {
 
 	@Value("${tracktable.doPublish}")
 	private boolean doPublish;
+	
+	@Value("${postgresql.replicationSlotName}")
+	private String replicationSlotName;
 
 
 
 	@PostConstruct
 	public void init() {
-		log.info("looking for changes in Database every " + schedulingDelay + " milliseconds.");
+		log.info("looking for changes in Database every " + schedulingDelay + " milliseconds");
 	}
 
 
@@ -72,48 +76,76 @@ public class RefreshCacheService {
 	@Scheduled(fixedDelayString = "${scheduling.interval}")
 	public void refreshCache() {
 
-		long pending_changes = changesetFetcher.peek("repslot_test");
+		log.debug("Start pulling changes...");
+		Collection<ChangeSetDAO> changes = changesetFetcher.fetch(replicationSlotName, numChangestoFetch);
+		Collection<Row> rows = new ArrayList<Row>();
 
-		log.info("Changes pending to process: " + pending_changes);
+		for (ChangeSetDAO change : changes) {
+			log.info(change.toString());
+			Row row = parser.parseLogLine(change.getData());
+			// This is a change to consider
+			if (row != null) {
+				rows.add(row);
+			}
+		}
+		
+		Predicate<Row> predicate = new Predicate<Row>() {
+			@Override
+			public boolean apply(Row input) {
+				return schemasToInclude.contains(input.getSchemaName());
+			}
+		};
 
-		if (pending_changes > 0) {
+		Collection<Row> relevantRows = Collections2.filter(rows, predicate);
+		log.info("Pulled changes [max:" + numChangestoFetch + ", found:"+rows.size() + ", relevant:"+relevantRows.size() + "]");
 
-			log.info("fetching up to " + numChangestoFetch + " changes...");
-			Collection<ChangeSetDAO> changes = changesetFetcher.fetch("repslot_test", numChangestoFetch);
-			Collection<Row> rows = new ArrayList<Row>();
+		if (relevantRows.size() == 0) {
+			// Nothing to do
+			return;
+		}
 
-			for (ChangeSetDAO change : changes) {
-				log.info(change.toString());
-				Row row = parser.parseLogLine(change.getData());
-				// This is a change to consider
-				if (row != null) {
-					rows.add(row);
+		Future<String> seeding = null;
+		Future<String> publishing = null;
+		if (doSeed) {
+			seeding = gwcInvalidator.postSeedRequests(relevantRows);
+		}
+		if (doPublish) {
+			publishing = trackTablePublisher.publish(relevantRows);
+		}
+
+		// Wait for Publish task to be finished and check for Errors
+		if (doPublish) {
+			while (!(publishing.isDone())) {
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+					log.warn("InterruptedExcepton during waiting of completion of Tasks", e);
 				}
 			}
+			try {
+				publishing.get();
+			} catch (InterruptedException e) {
+				log.warn("InterruptedExcepton during excecution of 'publishing' Task", e);
+			} catch (ExecutionException e) {
+				log.warn("Exception occurrred during execution of 'publishing' Task.", e);
+			}
+		}
 
-			log.info("Checking relevance...");
-
-			Predicate<Row> predicate = new Predicate<Row>() {
-				@Override
-				public boolean apply(Row input) {
-					return schemasToInclude.contains(input.getSchemaName());
+		// Wait for Seed task to be finished and check for Errors
+		if (doSeed) {
+			while (!(seeding.isDone())) {
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+					log.warn("InterruptedExcepton during waiting of completion of Tasks", e);
 				}
-			};
-
-			Collection<Row> relevantRows = Collections2.filter(rows, predicate);
-
-			if (relevantRows.size() == 0) {
-				// Nothing to do
-				return;
 			}
-
-			// TODO call these independently asynchronous in order to avoid errors on the first to be propagated to the
-			// second.
-			if (doSeed) {
-				Future<String> seeding = gwcInvalidator.postSeedRequests(relevantRows);
-			}
-			if (doPublish) {
-				Future<String> publishing = trackTablePublisher.publish(relevantRows);
+			try {
+				seeding.get();
+			} catch (InterruptedException e) {
+				log.warn("InterruptedExcepton during excecution of 'seeding' Task", e);
+			} catch (ExecutionException e) {
+				log.warn("Exception occurrred during execution of 'seeding' Task.", e);
 			}
 		}
 	}

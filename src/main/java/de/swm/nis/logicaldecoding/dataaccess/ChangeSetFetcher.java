@@ -42,6 +42,8 @@ public class ChangeSetFetcher {
 	}
 	
 	public long peek(String slotname) {
+		//TODO this might be a VERY long running transaction in case of big updates (>10 Minutes), 
+		//is this feasible? Are there better solutions? Is this really necessary?
 		String sql = "SELECT count(*) from pg_logical_slot_peek_changes(?, NULL, NULL)";
 		Number number = template.queryForObject(sql,  new Object[]{slotname}, Long.class);
 		return (number != null ? number.longValue() : 0);
