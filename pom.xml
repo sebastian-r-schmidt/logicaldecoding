@@ -5,7 +5,7 @@
 
 	<groupId>de.swm.nis</groupId>
 	<artifactId>RefreshCache</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.5.0</version>
 	<packaging>jar</packaging>
 
 	<name>RefreshCache</name>

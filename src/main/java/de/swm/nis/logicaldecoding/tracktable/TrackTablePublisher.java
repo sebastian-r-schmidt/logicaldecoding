@@ -54,9 +54,10 @@ public class TrackTablePublisher {
 	
 	public void publish(Row row) {
 		Envelope envelope = row.getEnvelope();
-		
 		GeometryFactory geomFactory = new GeometryFactory(new PrecisionModel(), 31468);
 		WKBWriter wkbWriter = new WKBWriter(2, true);
+		
+		//TODO the next statement does not work with empty envelopes (ie no geometry columns found or so).
 		byte[] wkb = wkbWriter.write(geomFactory.toGeometry(envelope));
 		String metadata = extractMetadata(row);
 		String changedTableSchema = row.getSchemaName();
