@@ -9,7 +9,7 @@ package de.swm.nis.logicaldecoding.parser;
 public class Cell {
 
 	public enum Type {
-		text, integer, date, geometry, real
+		text, varchar, character, bool, integer, real, doubleprec, numeric, date, timestamp, interval, geometry, json, jsonb, tsvector, uuid
 	};
 
 	private String name;
@@ -29,7 +29,27 @@ public class Cell {
 
 	public Cell(String type, String name, String value) {
 		this.name = name;
-		this.type = Type.valueOf(type);
+		switch(type) 
+		{
+			case "boolean": {
+				this.type = Type.valueOf("bool");
+				break;
+			}
+			case "double precision": {
+				this.type = Type.valueOf("doubleprec");
+				break;
+			}
+			case "character varying": {
+				this.type = Type.valueOf("varchar");
+				break;
+			}
+			case "timestamp without time zone": {
+				this.type = Type.valueOf("timestamp");
+				break;
+			}
+			default:
+				this.type = Type.valueOf(type);
+		}
 		this.value = value;
 		unquoteStrings();
 	}
@@ -37,7 +57,7 @@ public class Cell {
 
 	private void unquoteStrings() {
 		if (!value.equals("null")) {
-			if (this.type == Type.text || this.type == Type.date || this.type == Type.geometry) {
+			if (this.type == Type.text || this.type == Type.date || this.type == Type.geometry || this.type == Type.varchar) {
 				int length = value.length();
 				value = value.substring(1, length - 1);
 			}

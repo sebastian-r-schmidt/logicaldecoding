@@ -139,12 +139,13 @@ public class LogicalDecodingTestPluginParser {
 	 * @return List of Strings, the parts.
 	 */
 	public List<String> splitKeyValuePairs(String message) {
-		// within ' escaped Strings blanks are not considered as delimiters
+		// within '' or [] escaped Strings blanks are not considered as delimiters
 		List<String> tokens = Lists.newArrayList(Splitter.on(' ').trimResults().omitEmptyStrings().split(message));
 
 		List<String> returnvalues = new ArrayList<String>(tokens.size());
 
 		boolean quoteOn = false;
+		boolean collectOn = false;
 		StringBuffer collector = new StringBuffer();
 		for (String token : tokens) {
 			int singleQuoteCount = CharMatcher.is('\'').countIn(token);
@@ -163,7 +164,23 @@ public class LogicalDecodingTestPluginParser {
 				// Middle of quoting
 				collector.append(" " + token);
 			} else {
-				returnvalues.add(token);
+				//handle blanks in [] parts
+				if (CharMatcher.is('[').countIn(token) == 1 && CharMatcher.is(']').countIn(token) == 0) {
+					//begin of type name with blanks
+					collector = new StringBuffer(token);
+					collectOn = true;
+				}
+				if (CharMatcher.is('[').countIn(token) == 0 && collectOn && CharMatcher.is(']').countIn(token) == 0) {
+					collector.append (" " + token);
+				}
+				if (collectOn && CharMatcher.is('[').countIn(token) == 0 && CharMatcher.is(']').countIn(token) == 1) {
+					collector.append (" " + token);
+					collectOn = false;
+					returnvalues.add(collector.toString());
+				}
+				if (!collectOn && ((CharMatcher.is('[').countIn(token) == 1 && CharMatcher.is(']').countIn(token) == 1) || (CharMatcher.is('[').countIn(token) == 0 && CharMatcher.is(']').countIn(token) == 0))) {
+					returnvalues.add(token);
+				}
 			}
 		}
 		return returnvalues;

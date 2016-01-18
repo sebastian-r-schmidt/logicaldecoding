@@ -56,7 +56,15 @@ public class LogParserTest {
 		assertTrue(row.getNewValues().size() > 0);
 	}
 
-
+	@Test
+	public void testParseInsert2() {
+		Row row = parser
+				.parseLogLine("table public.allsupportedtypes: INSERT: a_serial[integer]:5 a_numeric[numeric]:null a_real[real]:null a_double[double precision]:null a_char[character]:null a_varchar[character varying]:'text' a_text[text]:'text with blanks and [ ] brackets' a_boolean[boolean]:null a_json[json]:null a_jsonb[jsonb]:null a_date[date]:null a_timestamp[timestamp without time zone]:null a_interval[interval]:null a_tsvector[tsvector]:null a_uuid[uuid]:null a_postgis_geom[geometry]:null");
+		System.out.println(row);
+		assertNotNull(row);
+		assertEquals(0, row.getOldValues().size());
+		assertTrue(row.getNewValues().size() > 0);
+	}
 
 	@Test
 	public void testParseUpdate() {
