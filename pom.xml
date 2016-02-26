@@ -4,11 +4,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>de.swm.nis</groupId>
-	<artifactId>RefreshCache</artifactId>
+	<artifactId>logicaldecoding</artifactId>
 	<version>0.5.0</version>
 	<packaging>jar</packaging>
 
-	<name>RefreshCache</name>
+	<name>LogicalDecoding</name>
 	<description>Reads PostgreSQL Logical Decoded logs and invalidates GeoWebCache accordingly</description>
 
 	<parent>
