@@ -86,7 +86,7 @@ newKeyValuePair
 
 value
 :
-	~(' ')
+	~(' ')*
 ;
 
 table
@@ -113,8 +113,6 @@ typedef
 :
 	 ~(']:')*
 ;
-
-//old position of value
 
 quotedValue
 :

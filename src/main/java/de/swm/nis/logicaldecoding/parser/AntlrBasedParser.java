@@ -3,10 +3,12 @@ package de.swm.nis.logicaldecoding.parser;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import org.springframework.stereotype.Component;
 
 import de.swm.nis.logicaldecoding.parser.PgLogicalDecodingParser.LoglineContext;
 import de.swm.nis.logicaldecoding.parser.domain.Event;
 
+@Component
 public class AntlrBasedParser implements PgParser {
 
 	public Event parseLogLine(String message) {

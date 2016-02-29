@@ -22,8 +22,9 @@ import com.google.common.collect.Collections2;
 import de.swm.nis.logicaldecoding.dataaccess.ChangeSetDAO;
 import de.swm.nis.logicaldecoding.dataaccess.ChangeSetFetcher;
 import de.swm.nis.logicaldecoding.gwc.GWCInvalidator;
-import de.swm.nis.logicaldecoding.parser.LogicalDecodingTestPluginParser;
+import de.swm.nis.logicaldecoding.parser.PgParser;
 import de.swm.nis.logicaldecoding.parser.domain.DmlEvent;
+import de.swm.nis.logicaldecoding.parser.domain.Event;
 import de.swm.nis.logicaldecoding.tracktable.TrackTablePublisher;
 
 
@@ -41,7 +42,7 @@ public class RefreshCacheService {
 	private GWCInvalidator gwcInvalidator;
 
 	@Autowired
-	private LogicalDecodingTestPluginParser parser;
+	private PgParser parser;
 
 	@Autowired
 	private TrackTablePublisher trackTablePublisher;
@@ -78,14 +79,14 @@ public class RefreshCacheService {
 
 		log.debug("Start pulling changes...");
 		Collection<ChangeSetDAO> changes = changesetFetcher.fetch(replicationSlotName, numChangestoFetch);
-		Collection<DmlEvent> rows = new ArrayList<DmlEvent>();
+		Collection<DmlEvent> events = new ArrayList<DmlEvent>();
 
 		for (ChangeSetDAO change : changes) {
 			log.info(change.toString());
-			DmlEvent row = parser.parseLogLine(change.getData());
+			Event event = parser.parseLogLine(change.getData());
 			// This is a change to consider
-			if (row != null) {
-				rows.add(row);
+			if (event instanceof DmlEvent) {
+				events.add((DmlEvent)event);
 			}
 		}
 		
@@ -96,10 +97,10 @@ public class RefreshCacheService {
 			}
 		};
 
-		Collection<DmlEvent> relevantRows = Collections2.filter(rows, predicate);
-		log.info("Pulled changes [max:" + numChangestoFetch + ", found:"+rows.size() + ", relevant:"+relevantRows.size() + "]");
+		Collection<DmlEvent> relevantEvents = Collections2.filter(events, predicate);
+		log.info("Pulled changes [max:" + numChangestoFetch + ", found:"+events.size() + ", relevant:"+relevantEvents.size() + "]");
 
-		if (relevantRows.size() == 0) {
+		if (relevantEvents.size() == 0) {
 			// Nothing to do
 			return;
 		}
@@ -107,10 +108,10 @@ public class RefreshCacheService {
 		Future<String> seeding = null;
 		Future<String> publishing = null;
 		if (doSeed) {
-			seeding = gwcInvalidator.postSeedRequests(relevantRows);
+			seeding = gwcInvalidator.postSeedRequests(relevantEvents);
 		}
 		if (doPublish) {
-			publishing = trackTablePublisher.publish(relevantRows);
+			publishing = trackTablePublisher.publish(relevantEvents);
 		}
 
 		// Wait for Publish task to be finished and check for Errors

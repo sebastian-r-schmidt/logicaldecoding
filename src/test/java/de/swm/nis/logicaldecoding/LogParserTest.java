@@ -2,17 +2,12 @@ package de.swm.nis.logicaldecoding;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import de.swm.nis.logicaldecoding.parser.AntlrBasedParser;
-import de.swm.nis.logicaldecoding.parser.LogicalDecodingTestPluginParser;
-import de.swm.nis.logicaldecoding.parser.ParserListener;
 import de.swm.nis.logicaldecoding.parser.PgParser;
 import de.swm.nis.logicaldecoding.parser.domain.Cell;
 import de.swm.nis.logicaldecoding.parser.domain.DmlEvent;
@@ -24,14 +19,12 @@ import de.swm.nis.logicaldecoding.parser.domain.TxEvent;
 //@RunWith(SpringJUnit4ClassRunner.class)
 public class LogParserTest {
 
-	//private LogicalDecodingTestPluginParser parser;
 	private PgParser parser;
 
 
 
 	@Before
 	public void setup() {
-//		parser = new LogicalDecodingTestPluginParser();
 		parser = new AntlrBasedParser();
 	}
 
@@ -117,7 +110,7 @@ public class LogParserTest {
 
 
 	@Test
-	public void testCellValueBlanks() {
+	public void testCellNamesWithUnderscores() {
 		Event event = parser
 				.parseLogLine("table tmp.a: DELETE: landkreisschluessel[integer]:1889 name[text]:'Landsberg am Lechtal' landkreis_id[integer]:35 _version[integer]:4854754 kuerzel[text]:'LL'");
 		System.out.println(event);
@@ -134,7 +127,7 @@ public class LogParserTest {
 
 
 	@Test
-	public void testCellDatatypes() {
+	public void testCellIntegerDataType() {
 		Event event = parser.parseLogLine("table a.a: DELETE: landkreisschluessel[integer]:1889");
 		assertTrue(event instanceof DmlEvent);
 		DmlEvent dmlEvent = (DmlEvent)event;
@@ -142,20 +135,27 @@ public class LogParserTest {
 		assertEquals("landkreisschluessel", cell.getName());
 		assertEquals(Cell.Type.integer, cell.getType());
 		assertEquals("1889", cell.getValue());
-
-		event = parser.parseLogLine("table a.a: DELETE: name[text]:'Landsberg am Lech'");
+	}
+	
+	@Test
+	public void testCellTextDataType() {
+		Event event = parser.parseLogLine("table a.a: DELETE: name[text]:'Landsberg am Lech'");
 		assertTrue(event instanceof DmlEvent);
-		dmlEvent = (DmlEvent)event;
-		cell = dmlEvent.getOldValues().get(0);
+		DmlEvent dmlEvent = (DmlEvent)event;
+		Cell cell = dmlEvent.getOldValues().get(0);
 		assertEquals("name", cell.getName());
 		assertEquals(Cell.Type.text, cell.getType());
 		assertEquals("Landsberg am Lech", cell.getValue());
-
-		event = parser
+	}
+		
+	@Test 
+	public void testCellGeometryDataType() {
+			
+		Event event = parser
 				.parseLogLine("table a.a: DELETE: the_geom[geometry]:'0106000020EC7A0000010000000103000000010000000C0000003B84A88392C750411155771E44765441900A7B95C9C4504109F537F0098C544156B5B1BDAFD050412B43E90B9F925441B01595649CDE5041DDD9BEDBDF925441411B22CC85EB5041978D3C8D989054410B76780B89EC5041E8A686D4748554419CBE9CBF34E65041031B275B547B54412A9A38A985D75041AC27CC7EC2755441450ED92F65CD504173159AF36A6E5441F53726354BC55041EF06C602AF6F544113194F8685C3504118721F00BC7354413B84A88392C750411155771E44765441'");
 		assertTrue(event instanceof DmlEvent);
-		dmlEvent = (DmlEvent)event;
-		cell = dmlEvent.getOldValues().get(0);
+		DmlEvent dmlEvent = (DmlEvent)event;
+		Cell cell = dmlEvent.getOldValues().get(0);
 		assertEquals("the_geom", cell.getName());
 		assertEquals(Cell.Type.geometry, cell.getType());
 	}
