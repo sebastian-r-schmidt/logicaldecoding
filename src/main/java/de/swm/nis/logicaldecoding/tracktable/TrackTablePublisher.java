@@ -23,8 +23,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.PrecisionModel;
 import com.vividsolutions.jts.io.WKBWriter;
 
-import de.swm.nis.logicaldecoding.parser.Cell;
-import de.swm.nis.logicaldecoding.parser.Row;
+import de.swm.nis.logicaldecoding.parser.domain.Cell;
+import de.swm.nis.logicaldecoding.parser.domain.DmlEvent;
 
 @Repository
 public class TrackTablePublisher {
@@ -44,25 +44,25 @@ public class TrackTablePublisher {
 	private List<String> metaInfoSearchPatterns;
 	
 	@Async
-	public Future<String> publish(Collection<Row> rows) {
-		log.info("Publishing " + rows.size()+" change metadata to track table");
-		for(Row row:rows) {
-			publish(row);
+	public Future<String> publish(Collection<DmlEvent> events) {
+		log.info("Publishing " + events.size()+" change metadata to track table");
+		for(DmlEvent event:events) {
+			publish(event);
 		}
 		return new AsyncResult<String>("success");
 	}
 	
-	public void publish(Row row) {
-		Envelope envelope = row.getEnvelope();
+	public void publish(DmlEvent event) {
+		Envelope envelope = event.getEnvelope();
 		GeometryFactory geomFactory = new GeometryFactory(new PrecisionModel(), 31468);
 		WKBWriter wkbWriter = new WKBWriter(2, true);
 		
 		//TODO the next statement does not work with empty envelopes (ie no geometry columns found or so).
 		byte[] wkb = wkbWriter.write(geomFactory.toGeometry(envelope));
-		String metadata = extractMetadata(row);
-		String changedTableSchema = row.getSchemaName();
-		String changedTableName = Iterables.get(Splitter.on('.').split(row.getTableName()),1);
-		String type = row.getType().toString();
+		String metadata = extractMetadata(event);
+		String changedTableSchema = event.getSchemaName();
+		String changedTableName = Iterables.get(Splitter.on('.').split(event.getTableName()),1);
+		String type = event.getType().toString();
 		
 		Object[] params = new Object[]{wkb, type, changedTableSchema, changedTableName, metadata};
 		int[] types = new int[] {Types.BINARY, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR,Types.VARCHAR};
@@ -72,15 +72,15 @@ public class TrackTablePublisher {
 		
 	}
 	
-	private String extractMetadata(Row row) {
-		switch(row.getType()) {
+	private String extractMetadata(DmlEvent event) {
+		switch(event.getType()) {
 			case delete:
 			{
-				return extractMetadata(row.getOldValues());
+				return extractMetadata(event.getOldValues());
 			}
 			default:
 			{
-				return extractMetadata(row.getNewValues());
+				return extractMetadata(event.getNewValues());
 			}
 			
 		}
@@ -98,6 +98,5 @@ public class TrackTablePublisher {
 		}
 		return Joiner.on(", ").join(parts);
 	}
-	
-	
+		
 }

@@ -1,4 +1,4 @@
-package de.swm.nis.logicaldecoding.parser;
+package de.swm.nis.logicaldecoding.parser.domain;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,8 +6,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
@@ -20,9 +18,9 @@ import com.vividsolutions.jts.io.WKBReader;
  * @author Schmidt.Sebastian2
  *
  */
-public class Row {
+public class DmlEvent extends Event{
 
-	private static final Logger log = LoggerFactory.getLogger(Row.class);
+	private static final Logger log = LoggerFactory.getLogger(DmlEvent.class);
 	
 	public enum Type {
 		insert, update, delete
@@ -30,23 +28,16 @@ public class Row {
 
 	private List<Cell> oldValues;
 	private List<Cell> newValues;
-	private String tableName;
 	private final Type type;
 
 
 
-	public Row(String table, Row.Type type) {
+	public DmlEvent(String schema, String table, DmlEvent.Type type) {
 		this.type = type;
-		this.tableName = table;
+		setTableName(table);
+		setSchemaName(schema);
 		oldValues = new ArrayList<Cell>();
 		newValues = new ArrayList<Cell>();
-	}
-
-	public String getSchemaName() {
-		if (tableName !=null) {
-			return Iterables.get(Splitter.on('.').split(tableName),0);
-		}
-		throw new RuntimeException("tableName is null, cannot calculate Schema name");
 	}
 	
 	public Envelope getEnvelope() {
@@ -86,29 +77,13 @@ public class Row {
 		return newValues;
 	}
 
-
-
-	public String getTableName() {
-		return tableName;
-	}
-
-
-
-	public void setTableName(String tableName) {
-		this.tableName = tableName;
-	}
-
-
-
 	public Type getType() {
 		return type;
 	}
 
-
-
 	@Override
 	public String toString() {
-		return "Row [type=" + type + ", tableName=" + tableName + ", newValues=" + newValues + ", oldValues="
+		return "Row [type=" + type + ", tableName=" + getTableName() + ", newValues=" + newValues + ", oldValues="
 				+ oldValues + "]";
 	}
 

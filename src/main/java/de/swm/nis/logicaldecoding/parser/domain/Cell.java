@@ -1,4 +1,4 @@
-package de.swm.nis.logicaldecoding.parser;
+package de.swm.nis.logicaldecoding.parser.domain;
 
 /**
  * Represents a single Cell inside a database: The entry inside a column at a specific Row.
@@ -17,6 +17,8 @@ public class Cell {
 	private Type type;
 
 
+	public Cell() {
+	}
 
 	public Cell(Cell.Type type, String name, String value) {
 		this.value = value;
@@ -29,27 +31,7 @@ public class Cell {
 
 	public Cell(String type, String name, String value) {
 		this.name = name;
-		switch(type) 
-		{
-			case "boolean": {
-				this.type = Type.valueOf("bool");
-				break;
-			}
-			case "double precision": {
-				this.type = Type.valueOf("doubleprec");
-				break;
-			}
-			case "character varying": {
-				this.type = Type.valueOf("varchar");
-				break;
-			}
-			case "timestamp without time zone": {
-				this.type = Type.valueOf("timestamp");
-				break;
-			}
-			default:
-				this.type = Type.valueOf(type);
-		}
+		setType(type);
 		this.value = value;
 		unquoteStrings();
 	}
@@ -74,6 +56,7 @@ public class Cell {
 
 	public void setValue(String value) {
 		this.value = value;
+//		unquoteStrings();
 	}
 
 
@@ -86,6 +69,30 @@ public class Cell {
 
 	public void setType(Type type) {
 		this.type = type;
+	}
+	
+	public void setType(String typeAsString) {
+		switch(typeAsString) 
+		{
+			case "boolean": {
+				this.type = Type.valueOf("bool");
+				break;
+			}
+			case "double precision": {
+				this.type = Type.valueOf("doubleprec");
+				break;
+			}
+			case "character varying": {
+				this.type = Type.valueOf("varchar");
+				break;
+			}
+			case "timestamp without time zone": {
+				this.type = Type.valueOf("timestamp");
+				break;
+			}
+			default:
+				this.type = Type.valueOf(typeAsString);
+		}
 	}
 
 

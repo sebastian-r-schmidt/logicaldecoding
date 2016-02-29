@@ -3,12 +3,12 @@ grammar PgLogicalDecoding;
 logline
 :
 	(
-		tx_statement
-		| dml_statement
+		txStatement
+		| dmlStatement
 	) EOF
 ;
 
-tx_statement
+txStatement
 :
 	(
 		'BEGIN '
@@ -21,48 +21,48 @@ Number
 	[0-9]+
 ;
 
-dml_statement
+dmlStatement
 :
 	'table ' table ': '
 	(
-		insert_op
-		| update_op
-		| delete_op
+		insertOp
+		| updateOp
+		| deleteOp
 	)
 ;
 
-insert_op
+insertOp
 :
 	'INSERT: '
 	(
-		new_key_value_pair
+		newKeyValuePair
 	)*
 ;
 
-update_op
+updateOp
 :
 	'UPDATE: old-key: '
 	(
-		old_key_value_pair
+		oldKeyValuePair
 	)* 'new-tuple: '
 	(
-		new_key_value_pair
+		newKeyValuePair
 	)*
 ;
 
-delete_op
+deleteOp
 :
 	'DELETE: '
 	(
-		old_key_value_pair
+		oldKeyValuePair
 	)*
 ;
 
-old_key_value_pair
+oldKeyValuePair
 :
 	columnname '[' typedef ']:'
 	(
-		quoted_value
+		quotedValue
 		| value
 	)
 	(
@@ -71,17 +71,22 @@ old_key_value_pair
 	)
 ;
 
-new_key_value_pair
+newKeyValuePair
 :
 	columnname '[' typedef ']:'
 	(
-		quoted_value
+		quotedValue
 		| value
 	)
 	(
 		' '
 		| EOF
 	)
+;
+
+value
+:
+	~(' ')
 ;
 
 table
@@ -109,14 +114,11 @@ typedef
 	 ~(']:')*
 ;
 
-value
-:
-	~(' ')
-;
+//old position of value
 
-quoted_value
+quotedValue
 :
-	String
+	QuotedString
 ;
 
 Identifier
@@ -128,7 +130,7 @@ Identifier
 	)+
 ;
 
-String
+QuotedString
 :
 	'\'' ~( '\'' )* '\''
 ;

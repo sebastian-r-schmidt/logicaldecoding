@@ -25,7 +25,7 @@ import de.swm.nis.logicaldecoding.gwc.seed.Coordinates;
 import de.swm.nis.logicaldecoding.gwc.seed.GwcSeedDAO;
 import de.swm.nis.logicaldecoding.gwc.seed.SeedRequest;
 import de.swm.nis.logicaldecoding.gwc.seed.Srs;
-import de.swm.nis.logicaldecoding.parser.Row;
+import de.swm.nis.logicaldecoding.parser.domain.DmlEvent;
 
 
 
@@ -79,7 +79,7 @@ public class GWCInvalidator {
 
 
 	@Async
-	public Future<String> postSeedRequests(Collection<Row> rows) {
+	public Future<String> postSeedRequests(Collection<DmlEvent> rows) {
 
 		log.debug("Calculating affected Regions...");
 		Collection<Envelope> envelopes = findAffectedRegion(rows);
@@ -112,9 +112,9 @@ public class GWCInvalidator {
 
 
 
-	private Collection<Envelope> findAffectedRegion(Collection<Row> rows) {
+	private Collection<Envelope> findAffectedRegion(Collection<DmlEvent> rows) {
 		Collection<Envelope> envelopes = new ArrayList<Envelope>();
-		for (Row row : rows) {
+		for (DmlEvent row : rows) {
 			if (row != null) {
 				envelopes.add(row.getEnvelope());
 			}

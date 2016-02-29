@@ -23,7 +23,7 @@ import de.swm.nis.logicaldecoding.dataaccess.ChangeSetDAO;
 import de.swm.nis.logicaldecoding.dataaccess.ChangeSetFetcher;
 import de.swm.nis.logicaldecoding.gwc.GWCInvalidator;
 import de.swm.nis.logicaldecoding.parser.LogicalDecodingTestPluginParser;
-import de.swm.nis.logicaldecoding.parser.Row;
+import de.swm.nis.logicaldecoding.parser.domain.DmlEvent;
 import de.swm.nis.logicaldecoding.tracktable.TrackTablePublisher;
 
 
@@ -78,25 +78,25 @@ public class RefreshCacheService {
 
 		log.debug("Start pulling changes...");
 		Collection<ChangeSetDAO> changes = changesetFetcher.fetch(replicationSlotName, numChangestoFetch);
-		Collection<Row> rows = new ArrayList<Row>();
+		Collection<DmlEvent> rows = new ArrayList<DmlEvent>();
 
 		for (ChangeSetDAO change : changes) {
 			log.info(change.toString());
-			Row row = parser.parseLogLine(change.getData());
+			DmlEvent row = parser.parseLogLine(change.getData());
 			// This is a change to consider
 			if (row != null) {
 				rows.add(row);
 			}
 		}
 		
-		Predicate<Row> predicate = new Predicate<Row>() {
+		Predicate<DmlEvent> predicate = new Predicate<DmlEvent>() {
 			@Override
-			public boolean apply(Row input) {
+			public boolean apply(DmlEvent input) {
 				return schemasToInclude.contains(input.getSchemaName());
 			}
 		};
 
-		Collection<Row> relevantRows = Collections2.filter(rows, predicate);
+		Collection<DmlEvent> relevantRows = Collections2.filter(rows, predicate);
 		log.info("Pulled changes [max:" + numChangestoFetch + ", found:"+rows.size() + ", relevant:"+relevantRows.size() + "]");
 
 		if (relevantRows.size() == 0) {

@@ -11,29 +11,32 @@ import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 
+import de.swm.nis.logicaldecoding.parser.domain.Cell;
+import de.swm.nis.logicaldecoding.parser.domain.DmlEvent;
+
 
 /**
  * This class is able to parse the output of postgreSQLs test_decoding logical decoding plugin
- * int Java Objects (de.swm.nis.logicalDecoding.domain.Row and de.swm.nis.logicalDecoding.domain.Cell)
+ * into Java Objects (de.swm.nis.logicalDecoding.domain.Row and de.swm.nis.logicalDecoding.domain.Cell)
  * @author Schmidt.Sebastian2
  *
  */
 @Component
-public class LogicalDecodingTestPluginParser {
+public class LogicalDecodingTestPluginParser implements PgParser {
 
 	
 	private static final Logger log = LoggerFactory.getLogger(LogicalDecodingTestPluginParser.class);
 	
 	/**
-	 * parses a log line into a Row object
+	 * parses a log line into a DmlEvent object
 	 * 
 	 * @param message
 	 *            the message to convert
 	 * @return row object, potentially null (for begin/commit) messages.
 	 */
-	public Row parseLogLine(String message) {
+	public DmlEvent parseLogLine(String message) {
 
-		Row row = null;
+		DmlEvent row = null;
 		// determine if we have a begin, commit or table modification message (summing up Insert, update,
 		// delete):
 		String startToken = message.substring(0, 6);
@@ -63,13 +66,13 @@ public class LogicalDecodingTestPluginParser {
 	 *            the string to convert
 	 * @return a row object describing the update.
 	 */
-	public Row parseRow(String message) {
-		Row row = null;
+	public DmlEvent parseRow(String message) {
+		DmlEvent row = null;
 		List<String> tokens = splitKeyValuePairs(message);
 		String tableName = tokens.get(1).substring(0, tokens.get(1).length() - 1);
 		switch (tokens.get(2)) {
 			case "INSERT:": {
-				row = new Row(tableName, Row.Type.insert);
+				row = new DmlEvent("public", tableName, DmlEvent.Type.insert);
 				// leave "old values" empty
 				for (int i = 3; i < tokens.size(); i++) {
 					row.getNewValues().add(parseCell(tokens.get(i)));
@@ -77,7 +80,7 @@ public class LogicalDecodingTestPluginParser {
 				break;
 			}
 			case "UPDATE:": {
-				row = new Row(tableName, Row.Type.update);
+				row = new DmlEvent("public", tableName, DmlEvent.Type.update);
 				boolean oldValues = true;
 				for (int i = 3; i < tokens.size(); i++) {
 					String token = tokens.get(i);
@@ -96,7 +99,7 @@ public class LogicalDecodingTestPluginParser {
 				break;
 			}
 			case "DELETE:": {
-				row = new Row(tableName, Row.Type.delete);
+				row = new DmlEvent("public", tableName, DmlEvent.Type.delete);
 				for (int i = 3; i < tokens.size(); i++) {
 					// leave "new values" empty
 					row.getOldValues().add(parseCell(tokens.get(i)));
@@ -115,7 +118,7 @@ public class LogicalDecodingTestPluginParser {
 	 * @param description
 	 * @return
 	 */
-	public Cell parseCell(String description) {
+	private Cell parseCell(String description) {
 		// 1. split at ":"
 		List<String> splitted = Lists.newArrayList(Splitter.on(':').trimResults().omitEmptyStrings().limit(2)
 				.split(description));
