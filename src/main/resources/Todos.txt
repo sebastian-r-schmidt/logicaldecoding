@@ -1,8 +1,7 @@
 * (high) Program fails if a geometryless object is detected as relevant change or an object with a NULL geometry. 
 move something with geometry empty into the "changes" table.
-* (middle) ChangeSetFetcherTest: Do Testing and Mocking of tests
+* (medium) ChangeSetFetcherTest: Do Testing and Mocking of tests
+* (medium) Configure timestamp usage
 * (low) Cell.Type: move parsing of datatypes into enum type.
-* (low) LogicalDecodingTestPluginParser: replace grammar parsing with something more sophisticated (ANTLR), see 
-http://stackoverflow.com/questions/2042353/extending-simple-antlr-grammer-to-support-input-variables
-for examples
 * (low) Enable mode for multipolygons describing a move operation (not an envelope over old and new Geometry).
+* (low) move all attributes into a JSONB structure in the track table.
