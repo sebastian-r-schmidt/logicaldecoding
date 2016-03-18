@@ -61,7 +61,7 @@ public class TrackTablePublisher {
 		byte[] wkb = wkbWriter.write(geomFactory.toGeometry(envelope));
 		String metadata = extractMetadata(event);
 		String changedTableSchema = event.getSchemaName();
-		String changedTableName = Iterables.get(Splitter.on('.').split(event.getTableName()),1);
+		String changedTableName = event.getTableName();
 		String type = event.getType().toString();
 		
 		Object[] params = new Object[]{wkb, type, changedTableSchema, changedTableName, metadata};
