@@ -16,8 +16,6 @@ import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Repository;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.PrecisionModel;
@@ -53,23 +51,34 @@ public class TrackTablePublisher {
 	}
 	
 	public void publish(DmlEvent event) {
-		Envelope envelope = event.getEnvelope();
-		GeometryFactory geomFactory = new GeometryFactory(new PrecisionModel(), 31468);
-		WKBWriter wkbWriter = new WKBWriter(2, true);
-		
-		//TODO the next statement does not work with empty envelopes (ie no geometry columns found or so).
-		byte[] wkb = wkbWriter.write(geomFactory.toGeometry(envelope));
+
 		String metadata = extractMetadata(event);
 		String changedTableSchema = event.getSchemaName();
 		String changedTableName = event.getTableName();
 		String type = event.getType().toString();
 		
-		Object[] params = new Object[]{wkb, type, changedTableSchema, changedTableName, metadata};
-		int[] types = new int[] {Types.BINARY, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR,Types.VARCHAR};
+		Object[] params;
+		String sql;
+		int[] types;
 		
-		String sql = "INSERT INTO "+schemaname + "." + tableName + "(region, type, schema, tablename, metadata) VALUES (?,?,?,?,?)";
+		Envelope envelope = event.getEnvelope();
+		if (! envelope.isNull()) {
+			//Transform Bounding Box of the change into WKB
+			GeometryFactory geomFactory = new GeometryFactory(new PrecisionModel(), 31468);
+			WKBWriter wkbWriter = new WKBWriter(2, true);
+			byte[] wkb = wkbWriter.write(geomFactory.toGeometry(envelope));
+			params = new Object[]{wkb, type, changedTableSchema, changedTableName, metadata};
+			types = new int[] {Types.BINARY, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR,Types.VARCHAR};
+			sql = "INSERT INTO "+schemaname + "." + tableName + "(region, type, schema, tablename, metadata) VALUES (?,?,?,?,?)";
+		}
+		else {
+			//geometry is null, do not include it in SQL insert statement
+			params = new Object[]{type, changedTableSchema, changedTableName, metadata};
+			types = new int[] {Types.VARCHAR, Types.VARCHAR, Types.VARCHAR,Types.VARCHAR};
+			sql = "INSERT INTO "+schemaname + "." + tableName + "(type, schema, tablename, metadata) VALUES (?,?,?,?)";
+			
+		}
 		template.update(sql, params,types);
-		
 	}
 	
 	private String extractMetadata(DmlEvent event) {
@@ -82,7 +91,6 @@ public class TrackTablePublisher {
 			{
 				return extractMetadata(event.getNewValues());
 			}
-			
 		}
 	}
 	
