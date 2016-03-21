@@ -1,8 +1,8 @@
-* (high) Program fails if a geometryless object is detected as relevant change or an object with a NULL geometry. 
-move something with geometry empty into the "changes" table.
-* (middle) ChangeSetFetcherTest: Do Testing and Mocking of tests
-* (low) Cell.Type: move parsing of datatypes into enum type.
-* (low) LogicalDecodingTestPluginParser: replace grammar parsing with something more sophisticated (ANTLR), see 
-http://stackoverflow.com/questions/2042353/extending-simple-antlr-grammer-to-support-input-variables
-for examples
-* (low) Enable mode for multipolygons describing a move operation (not an envelope over old and new Geometry).
+* (+) Provide Jobsite Example in English including Table structure and QGIS Project
+* (+) merge ANTLR4 based Parser into main branch
+* (+) Include Parsing of Commit timestamps.
+* (o) Increase test coverage: ChangeSetFetcherTest: Do Testing and Database Mocks
+* (o) Check Versions of referenced Libraries.
+* (o) Store whole attribute structure of old and new features into a JSONB object
+* (-) Cell.Type: move parsing of datatypes into enum type.
+* (-) Enable mode for multipolygons describing a move operation (not an envelope over old and new Geometry).
