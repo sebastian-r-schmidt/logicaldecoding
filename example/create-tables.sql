@@ -17,5 +17,5 @@ CREATE TABLE metadata.changeset
   tablename text,
   metadata text,
   reviewed boolean DEFAULT false,
-  changeset_id serial primary key;
+  changeset_id serial primary key
 );

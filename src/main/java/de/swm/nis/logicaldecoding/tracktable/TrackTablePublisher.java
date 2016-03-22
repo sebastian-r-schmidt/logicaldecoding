@@ -41,6 +41,9 @@ public class TrackTablePublisher {
 	@Value("#{'${tracktable.metainfo.searchpatterns}'.split(',')}")
 	private List<String> metaInfoSearchPatterns;
 	
+	@Value("${postgresql.epsgCode}")
+	private int epsgCode;
+	
 	@Async
 	public Future<String> publish(Collection<DmlEvent> events) {
 		log.info("Publishing " + events.size()+" change metadata to track table");
@@ -64,18 +67,18 @@ public class TrackTablePublisher {
 		Envelope envelope = event.getEnvelope();
 		if (! envelope.isNull()) {
 			//Transform Bounding Box of the change into WKB
-			GeometryFactory geomFactory = new GeometryFactory(new PrecisionModel(), 31468);
+			GeometryFactory geomFactory = new GeometryFactory(new PrecisionModel(), epsgCode);
 			WKBWriter wkbWriter = new WKBWriter(2, true);
 			byte[] wkb = wkbWriter.write(geomFactory.toGeometry(envelope));
 			params = new Object[]{wkb, type, changedTableSchema, changedTableName, metadata};
 			types = new int[] {Types.BINARY, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR,Types.VARCHAR};
-			sql = "INSERT INTO "+schemaname + "." + tableName + "(region, type, schema, tablename, metadata) VALUES (?,?,?,?,?)";
+			sql = "INSERT INTO "+schemaname + "." + tableName + "(region, type, schemaname, tablename, metadata) VALUES (?,?,?,?,?)";
 		}
 		else {
 			//geometry is null, do not include it in SQL insert statement
 			params = new Object[]{type, changedTableSchema, changedTableName, metadata};
 			types = new int[] {Types.VARCHAR, Types.VARCHAR, Types.VARCHAR,Types.VARCHAR};
-			sql = "INSERT INTO "+schemaname + "." + tableName + "(type, schema, tablename, metadata) VALUES (?,?,?,?)";
+			sql = "INSERT INTO "+schemaname + "." + tableName + "(type, schemaname, tablename, metadata) VALUES (?,?,?,?)";
 			
 		}
 		template.update(sql, params,types);
