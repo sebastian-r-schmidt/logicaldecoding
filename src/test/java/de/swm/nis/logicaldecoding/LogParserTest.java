@@ -133,6 +133,17 @@ public class LogParserTest {
 	}
 	
 	@Test
+	public void testCellNegativeIntegerDataType() {
+		Event event = parser.parseLogLine("table a.a: DELETE: landkreisschluessel[integer]:-1889");
+		assertTrue(event instanceof DmlEvent);
+		DmlEvent dmlEvent = (DmlEvent)event;
+		Cell cell = dmlEvent.getOldValues().get(0);
+		assertEquals("landkreisschluessel", cell.getName());
+		assertEquals(Cell.Type.integer, cell.getType());
+		assertEquals("-1889", cell.getValue());
+	}
+	
+	@Test
 	public void testCellTextDataType() {
 		Event event = parser.parseLogLine("table a.a: DELETE: name[text]:'Landsberg am Lech'");
 		assertTrue(event instanceof DmlEvent);

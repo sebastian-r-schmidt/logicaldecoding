@@ -136,7 +136,7 @@ QuotedString
 fragment
 Num
 :
-	[0-9]
+	'-'?[0-9]
 ;
 
 fragment
