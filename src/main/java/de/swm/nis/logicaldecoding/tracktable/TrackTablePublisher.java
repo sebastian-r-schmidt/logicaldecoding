@@ -26,6 +26,12 @@ import com.vividsolutions.jts.io.WKBWriter;
 import de.swm.nis.logicaldecoding.parser.domain.Cell;
 import de.swm.nis.logicaldecoding.parser.domain.DmlEvent;
 
+/**
+ * This class publishes changes into an audit table.
+ * Old an new Values of the whole object record are stored in JSONB objects.
+ * @author Schmidt.Sebastian2
+ *
+ */
 @Repository
 public class TrackTablePublisher {
 	
@@ -143,8 +149,7 @@ public class TrackTablePublisher {
 		try {
 			pgobject.setValue("{" + Joiner.on(", ").join(parts) + "}");
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Error while setting JSONB of changed Objects into SQL PGobject type:", e);
 		}
 		return pgobject;
 	}
