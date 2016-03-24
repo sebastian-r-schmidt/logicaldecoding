@@ -17,6 +17,13 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class ChangeSetFetcher {
 	
+	public ChangeSetFetcher(JdbcTemplate template) {
+		this.template = template;
+	}
+
+	public ChangeSetFetcher() {
+	}
+	
 	@Autowired
 	private JdbcTemplate template;
 	

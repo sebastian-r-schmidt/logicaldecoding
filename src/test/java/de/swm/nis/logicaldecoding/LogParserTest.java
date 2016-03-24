@@ -14,14 +14,9 @@ import de.swm.nis.logicaldecoding.parser.domain.DmlEvent;
 import de.swm.nis.logicaldecoding.parser.domain.Event;
 import de.swm.nis.logicaldecoding.parser.domain.TxEvent;
 
-
-
-//@RunWith(SpringJUnit4ClassRunner.class)
 public class LogParserTest {
 
 	private PgParser parser;
-
-
 
 	@Before
 	public void setup() {
