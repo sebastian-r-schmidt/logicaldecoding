@@ -2,3 +2,4 @@
 * (o) Check Versions of referenced Libraries.
 * (-) Cell.Type: move parsing of datatypes into enum type.
 * (-) Enable mode for multipolygons describing a move operation (not an envelope over old and new Geometry).
+
