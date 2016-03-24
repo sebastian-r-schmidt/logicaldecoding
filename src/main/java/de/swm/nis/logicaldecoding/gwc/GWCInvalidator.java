@@ -75,6 +75,9 @@ public class GWCInvalidator {
 
 	@Value("${gwc.imageformat}")
 	private String imageFormat;
+	
+	@Value("${postgresql.epsgCode}")
+	private int epsgCode;
 
 
 
@@ -100,7 +103,7 @@ public class GWCInvalidator {
 
 		Bounds bounds = new Bounds(new Coordinates(envelope.getMinX(), envelope.getMinY(), envelope.getMaxX(),
 				envelope.getMaxY()));
-		Srs srs = new Srs(31468);
+		Srs srs = new Srs(epsgCode);
 		SeedRequest request = new SeedRequest(layername, bounds, srs, zoomStart, zoomStop, imageFormat, operation,
 				numThreads);
 
