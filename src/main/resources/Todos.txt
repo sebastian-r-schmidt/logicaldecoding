@@ -1,4 +1,3 @@
-* (+) merge ANTLR4 based Parser into main branch
 * (+) Include Parsing of Commit timestamps.
 * (o) Check Versions of referenced Libraries.
 * (-) Cell.Type: move parsing of datatypes into enum type.
