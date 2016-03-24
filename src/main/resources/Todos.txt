@@ -1,5 +1,8 @@
 * (+) Region of changes: what to do with puntal objects? They do not fit into a "Polygon" column
 * (+) Include Parsing of Commit timestamps.
+     SELECT * FROM pg_logical_slot_peek_changes('repslot_test', NULL, NULL, 'include-timestamp', 'on');
+     Broken in 9.5.0 and 9.5.1, see https://github.com/postgres/postgres/commit/f8a75881f90f88f4dc54f3692e4e1691cf2c0a91
+     should work in 9.4.x
 * (o) Check Versions of referenced Libraries.
 * (-) Cell.Type: move parsing of datatypes into enum type.
 * (-) Enable mode for multipolygons describing a move operation (not an envelope over old and new Geometry).
