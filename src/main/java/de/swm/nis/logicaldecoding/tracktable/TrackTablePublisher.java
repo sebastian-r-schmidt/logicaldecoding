@@ -1,11 +1,13 @@
 package de.swm.nis.logicaldecoding.tracktable;
 
+import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Future;
 
+import org.postgresql.util.PGobject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,12 @@ import com.vividsolutions.jts.io.WKBWriter;
 import de.swm.nis.logicaldecoding.parser.domain.Cell;
 import de.swm.nis.logicaldecoding.parser.domain.DmlEvent;
 
+/**
+ * This class publishes changes into an audit table.
+ * Old an new Values of the whole object record are stored in JSONB objects.
+ * @author Schmidt.Sebastian2
+ *
+ */
 @Repository
 public class TrackTablePublisher {
 	
@@ -59,6 +67,8 @@ public class TrackTablePublisher {
 		String changedTableSchema = event.getSchemaName();
 		String changedTableName = event.getTableName();
 		String type = event.getType().toString();
+		PGobject oldjson = getJsonOldValues(event);
+		PGobject newjson = getJsonNewValues(event);
 		
 		Object[] params;
 		String sql;
@@ -70,15 +80,15 @@ public class TrackTablePublisher {
 			GeometryFactory geomFactory = new GeometryFactory(new PrecisionModel(), epsgCode);
 			WKBWriter wkbWriter = new WKBWriter(2, true);
 			byte[] wkb = wkbWriter.write(geomFactory.toGeometry(envelope));
-			params = new Object[]{wkb, type, changedTableSchema, changedTableName, metadata};
-			types = new int[] {Types.BINARY, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR,Types.VARCHAR};
-			sql = "INSERT INTO "+schemaname + "." + tableName + "(region, type, schemaname, tablename, metadata) VALUES (?,?,?,?,?)";
+			params = new Object[]{wkb, type, changedTableSchema, changedTableName, metadata,oldjson, newjson};
+			types = new int[] {Types.BINARY, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR,Types.VARCHAR, Types.OTHER, Types.OTHER};
+			sql = "INSERT INTO "+schemaname + "." + tableName + "(region, type, schemaname, tablename, metadata, oldvalues, newvalues) VALUES (?,?,?,?,?,?,?)";
 		}
 		else {
 			//geometry is null, do not include it in SQL insert statement
-			params = new Object[]{type, changedTableSchema, changedTableName, metadata};
-			types = new int[] {Types.VARCHAR, Types.VARCHAR, Types.VARCHAR,Types.VARCHAR};
-			sql = "INSERT INTO "+schemaname + "." + tableName + "(type, schemaname, tablename, metadata) VALUES (?,?,?,?)";
+			params = new Object[]{type, changedTableSchema, changedTableName, metadata, oldjson, newjson};
+			types = new int[] {Types.VARCHAR, Types.VARCHAR, Types.VARCHAR,Types.VARCHAR, Types.OTHER, Types.OTHER};
+			sql = "INSERT INTO "+schemaname + "." + tableName + "(type, schemaname, tablename, metadata, oldvalues, newvalues) VALUES (?,?,?,?,?,?)";
 			
 		}
 		template.update(sql, params,types);
@@ -109,5 +119,38 @@ public class TrackTablePublisher {
 		}
 		return Joiner.on(", ").join(parts);
 	}
-		
+	
+	
+	private PGobject getJsonOldValues(DmlEvent event) {
+		if ((event.getType() == DmlEvent.Type.delete) || (event.getType() == DmlEvent.Type.update)) {
+			return getJsonObject(event.getOldValues());
+		}
+		else {
+			return null;
+		}
+	}
+	
+	private PGobject getJsonNewValues(DmlEvent event) {
+		if ((event.getType() == DmlEvent.Type.insert) || (event.getType() == DmlEvent.Type.update)) {
+			return getJsonObject(event.getNewValues());
+		}
+		else {
+			return null;
+		}
+	}
+
+	private PGobject getJsonObject(List<Cell> values) {
+		List<String> parts = new ArrayList<String>();
+		for (Cell value:values) {
+			parts.add(new String("\"" + value.getName() + "\": \"" + value.getValue() + "\""));
+		}
+		PGobject pgobject = new PGobject();
+		pgobject.setType("jsonb");
+		try {
+			pgobject.setValue("{" + Joiner.on(", ").join(parts) + "}");
+		} catch (SQLException e) {
+			log.error("Error while setting JSONB of changed Objects into SQL PGobject type:", e);
+		}
+		return pgobject;
+	}
 }
