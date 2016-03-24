@@ -1,8 +1,5 @@
-* (+) Provide Jobsite Example in English including Table structure and QGIS Project
 * (+) merge ANTLR4 based Parser into main branch
 * (+) Include Parsing of Commit timestamps.
-* (o) Increase test coverage: ChangeSetFetcherTest: Do Testing and Database Mocks
 * (o) Check Versions of referenced Libraries.
-* (o) Store whole attribute structure of old and new features into a JSONB object
 * (-) Cell.Type: move parsing of datatypes into enum type.
 * (-) Enable mode for multipolygons describing a move operation (not an envelope over old and new Geometry).
