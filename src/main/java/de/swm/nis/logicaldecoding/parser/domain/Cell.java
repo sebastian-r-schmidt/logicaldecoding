@@ -9,7 +9,7 @@ package de.swm.nis.logicaldecoding.parser.domain;
 public class Cell {
 
 	public enum Type {
-		text, varchar, character, bool, integer, real, doubleprec, numeric, date, timestamp, interval, geometry, json, jsonb, tsvector, uuid
+		text, varchar, character, bool, integer, bigint, real, doubleprec, numeric, date, timestamp, timestamptz, interval, geometry, json, jsonb, tsvector, uuid
 	};
 
 	private String name;
@@ -88,6 +88,10 @@ public class Cell {
 			}
 			case "timestamp without time zone": {
 				this.type = Type.valueOf("timestamp");
+				break;
+			}
+			case "timestamp with time zone": {
+				this.type = Type.valueOf("timestamptz");
 				break;
 			}
 			default:

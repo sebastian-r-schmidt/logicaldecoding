@@ -14,7 +14,7 @@
         </property>
       </customproperties>
     </layer-tree-layer>
-    <layer-tree-layer expanded="1" checked="Qt::Checked" id="OpenLayers_plugin_layer20160322091216622" name="OpenStreetMap">
+    <layer-tree-layer expanded="1" checked="Qt::Checked" id="OpenLayers_plugin_layer20160324221154069" name="OpenStreetMap">
       <customproperties/>
     </layer-tree-layer>
   </layer-tree-group>
@@ -22,10 +22,10 @@
   <mapcanvas>
     <units>meters</units>
     <extent>
-      <xmin>1275173.27136363531462848</xmin>
-      <ymin>6122728.62462418992072344</ymin>
-      <xmax>1293087.69342657993547618</xmax>
-      <ymax>6142138.6043845834210515</ymax>
+      <xmin>1276828.98324825661256909</xmin>
+      <ymin>6132216.46045760624110699</ymin>
+      <xmax>1277388.80893772374838591</xmax>
+      <ymax>6132823.02232511900365353</ymax>
     </extent>
     <rotation>0</rotation>
     <projections>1</projections>
@@ -43,6 +43,7 @@
     </destinationsrs>
     <rendermaptile>0</rendermaptile>
     <layer_coordinate_transform_info>
+      <layer_coordinate_transform destAuthId="EPSG:3857" srcAuthId="EPSG:3857" srcDatumTransform="-1" destDatumTransform="-1" layerid="OpenLayers_plugin_layer20160324221154069"/>
       <layer_coordinate_transform destAuthId="EPSG:3857" srcAuthId="EPSG:4326" srcDatumTransform="-1" destDatumTransform="-1" layerid="jobsite20160322082448204"/>
       <layer_coordinate_transform destAuthId="EPSG:3857" srcAuthId="EPSG:3857" srcDatumTransform="-1" destDatumTransform="-1" layerid="OpenLayers_plugin_layer20160322091216622"/>
       <layer_coordinate_transform destAuthId="EPSG:3857" srcAuthId="EPSG:4326" srcDatumTransform="-1" destDatumTransform="-1" layerid="changeset20160322082814807"/>
@@ -52,7 +53,7 @@
     <custom-order enabled="0">
       <item>jobsite20160322082448204</item>
       <item>changeset20160322082814807</item>
-      <item>OpenLayers_plugin_layer20160322091216622</item>
+      <item>OpenLayers_plugin_layer20160324221154069</item>
     </custom-order>
   </layer-tree-canvas>
   <legend updateDrawingOrder="true">
@@ -68,13 +69,13 @@
     </legendlayer>
     <legendlayer drawingOrder="-1" open="true" checked="Qt::Checked" name="OpenStreetMap" showFeatureCount="0">
       <filegroup open="true" hidden="false">
-        <legendlayerfile isInOverview="0" layerid="OpenLayers_plugin_layer20160322091216622" visible="1"/>
+        <legendlayerfile isInOverview="0" layerid="OpenLayers_plugin_layer20160324221154069" visible="1"/>
       </filegroup>
     </legendlayer>
   </legend>
   <projectlayers>
     <maplayer minimumScale="0" maximumScale="1e+08" type="plugin" hasScaleBasedVisibilityFlag="0" name="openlayers">
-      <id>OpenLayers_plugin_layer20160322091216622</id>
+      <id>OpenLayers_plugin_layer20160324221154069</id>
       <datasource></datasource>
       <shortname>OpenLayers plugin layer</shortname>
       <title></title>
@@ -101,7 +102,7 @@
     </maplayer>
     <maplayer minimumScale="0" maximumScale="1e+08" simplifyDrawingHints="1" minLabelScale="0" maxLabelScale="1e+08" simplifyDrawingTol="1" geometry="Polygon" simplifyMaxScale="1" type="vector" hasScaleBasedVisibilityFlag="0" simplifyLocal="0" scaleBasedLabelVisibilityFlag="0">
       <id>changeset20160322082814807</id>
-      <datasource>dbname='change_detect_demo' host=localhost port=5432 user='postgres' sslmode=disable key='changeset_id' srid=4326 type=Polygon table="metadata"."changeset" (region) sql=</datasource>
+      <datasource>dbname='changedetect' host=localhost port=5433 user='seastian' sslmode=disable key='changeset_id' srid=4326 type=Polygon table="metadata"."changeset" (region) sql=</datasource>
       <shortname>changeset</shortname>
       <title></title>
       <abstract></abstract>
@@ -130,6 +131,9 @@
         <map-layer-style name=""/>
       </map-layer-style-manager>
       <edittypes>
+        <edittype widgetv2type="TextEdit" name="changeset_id">
+          <widgetv2config IsMultiline="0" fieldEditable="0" UseHtml="0" labelOnTop="0"/>
+        </edittype>
         <edittype widgetv2type="TextEdit" name="type">
           <widgetv2config IsMultiline="0" fieldEditable="0" UseHtml="0" labelOnTop="0"/>
         </edittype>
@@ -144,9 +148,6 @@
         </edittype>
         <edittype widgetv2type="CheckBox" name="reviewed">
           <widgetv2config fieldEditable="1" UncheckedState="f" CheckedState="t" labelOnTop="0"/>
-        </edittype>
-        <edittype widgetv2type="TextEdit" name="changeset_id">
-          <widgetv2config IsMultiline="0" fieldEditable="0" UseHtml="0" labelOnTop="0"/>
         </edittype>
       </edittypes>
       <renderer-v2 forceraster="0" symbollevels="0" type="RuleRenderer" enableorderby="0">
@@ -469,14 +470,14 @@
         </DiagramCategory>
       </SingleCategoryDiagramRenderer>
       <DiagramLayerSettings yPosColumn="-1" linePlacementFlags="10" placement="0" dist="0" xPosColumn="-1" priority="0" obstacle="0" zIndex="0" showAll="1"/>
-      <annotationform>../../../../../../Work/logical-decoding</annotationform>
+      <annotationform>/../Work/logical-decoding</annotationform>
       <excludeAttributesWMS/>
       <excludeAttributesWFS/>
       <attributeactions/>
-      <editform>../../../../../../Work/logical-decoding</editform>
+      <editform>/../Work/logical-decoding</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
-      <editforminitfilepath>../../../../../../Work/logical-decoding</editforminitfilepath>
+      <editforminitfilepath>/../Work/logical-decoding</editforminitfilepath>
       <editforminitcode><![CDATA[# -*- coding: utf-8 -*-
 """
 QGIS-Formulare können eine Python-Funktion haben, die beim Öffnen des Formulars gestartet wird.
@@ -502,7 +503,7 @@ def my_form_open(dialog, layer, feature):
     </maplayer>
     <maplayer minimumScale="0" maximumScale="1e+08" simplifyDrawingHints="1" minLabelScale="0" maxLabelScale="1e+08" simplifyDrawingTol="1" geometry="Polygon" simplifyMaxScale="1" type="vector" hasScaleBasedVisibilityFlag="0" simplifyLocal="0" scaleBasedLabelVisibilityFlag="0">
       <id>jobsite20160322082448204</id>
-      <datasource>dbname='change_detect_demo' host=localhost port=5432 user='postgres' sslmode=disable key='jobsite_id' srid=4326 type=Polygon table="data"."jobsite" (region) sql=</datasource>
+      <datasource>dbname='changedetect' host=localhost port=5433 user='sebastian' sslmode=disable key='jobsite_id' srid=4326 type=Polygon table="data"."jobsite" (region) sql=</datasource>
       <shortname>jobsite</shortname>
       <title></title>
       <abstract></abstract>

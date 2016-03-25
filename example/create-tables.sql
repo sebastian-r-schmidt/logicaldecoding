@@ -18,6 +18,8 @@ CREATE TABLE metadata.changeset
   schemaname text,
   tablename text,
   metadata text,
+  transactionId bigint,
+  timestamp timestamp with time zone,
   oldvalues jsonb,
   newvalues jsonb,
   reviewed boolean DEFAULT false
