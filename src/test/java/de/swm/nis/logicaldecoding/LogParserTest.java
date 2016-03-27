@@ -123,8 +123,6 @@ public class LogParserTest {
 		assertTrue(dmlEvent.getOldValues().size() > 0);
 	}
 
-
-
 	@Test
 	public void testCellNamesWithUnderscores() {
 		Event event = parser
@@ -139,6 +137,7 @@ public class LogParserTest {
 		assertEquals("name", cell.getName());
 		assertEquals(Cell.Type.text, cell.getType());
 		assertEquals("Landsberg am Lechtal", cell.getValue());
+		assertEquals("\"name\": \"Landsberg am Lechtal\"", cell.getJson());
 	}
 
 
@@ -151,6 +150,7 @@ public class LogParserTest {
 		assertEquals("landkreisschluessel", cell.getName());
 		assertEquals(Cell.Type.integer, cell.getType());
 		assertEquals("1889", cell.getValue());
+		assertEquals("\"landkreisschluessel\": 1889", cell.getJson());
 	}
 	
 	@Test
@@ -162,6 +162,7 @@ public class LogParserTest {
 		assertEquals("landkreisschluessel", cell.getName());
 		assertEquals(Cell.Type.integer, cell.getType());
 		assertEquals("-1889", cell.getValue());
+		assertEquals("\"landkreisschluessel\": -1889", cell.getJson());
 	}
 	
 	@Test
@@ -173,6 +174,7 @@ public class LogParserTest {
 		assertEquals("name", cell.getName());
 		assertEquals(Cell.Type.text, cell.getType());
 		assertEquals("Landsberg am Lech", cell.getValue());
+		assertEquals("\"name\": \"Landsberg am Lech\"", cell.getJson());
 	}
 		
 	@Test 
@@ -185,6 +187,7 @@ public class LogParserTest {
 		Cell cell = dmlEvent.getOldValues().get(0);
 		assertEquals("the_geom", cell.getName());
 		assertEquals(Cell.Type.geometry, cell.getType());
+		assertEquals("\"the_geom\": \"0106000020EC7A0000010000000103000000010000000C0000003B84A88392C750411155771E44765441900A7B95C9C4504109F537F0098C544156B5B1BDAFD050412B43E90B9F925441B01595649CDE5041DDD9BEDBDF925441411B22CC85EB5041978D3C8D989054410B76780B89EC5041E8A686D4748554419CBE9CBF34E65041031B275B547B54412A9A38A985D75041AC27CC7EC2755441450ED92F65CD504173159AF36A6E5441F53726354BC55041EF06C602AF6F544113194F8685C3504118721F00BC7354413B84A88392C750411155771E44765441\"", cell.getJson());
 	}
 	
 	@Test
@@ -196,6 +199,32 @@ public class LogParserTest {
 		assertEquals("height", cell.getName());
 		assertEquals(Cell.Type.real, cell.getType());
 		assertEquals("3.7", cell.getValue());
+		assertEquals("\"height\": 3.7", cell.getJson());
 	}
+	
+	@Test
+	public void testCellBooleanDataType() {
+		Event event = parser.parseLogLine("table a.a: DELETE: toggle[boolean]:true");
+		assertTrue(event instanceof DmlEvent);
+		DmlEvent dmlEvent = (DmlEvent)event;
+		Cell cell = dmlEvent.getOldValues().get(0);
+		assertEquals("toggle", cell.getName());
+		assertEquals(Cell.Type.bool, cell.getType());
+		assertEquals("true", cell.getValue());
+		assertEquals("\"toggle\": true", cell.getJson());
+	}
+	
+	@Test
+	public void testCellJsonbType() {
+		Event event = parser.parseLogLine("table a.a: DELETE: value[jsonb]:'{\"jobsite_id\": -2.8}'");
+		assertTrue(event instanceof DmlEvent);
+		DmlEvent dmlEvent = (DmlEvent)event;
+		Cell cell = dmlEvent.getOldValues().get(0);
+		assertEquals("value", cell.getName());
+		assertEquals(Cell.Type.jsonb, cell.getType());
+		assertEquals("{\"jobsite_id\": -2.8}", cell.getValue());
+		assertEquals("\"value\": {\"jobsite_id\": -2.8}", cell.getJson());
+	}
+	
 
 }

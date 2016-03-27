@@ -160,10 +160,10 @@ public class TrackTablePublisher {
 		}
 	}
 
-	private PGobject getJsonObject(List<Cell> values) {
+	private PGobject getJsonObject(List<Cell> cells) {
 		List<String> parts = new ArrayList<String>();
-		for (Cell value:values) {
-			parts.add(new String("\"" + value.getName() + "\": \"" + value.getValue() + "\""));
+		for (Cell cell:cells) {
+			parts.add(cell.getJson());
 		}
 		PGobject pgobject = new PGobject();
 		pgobject.setType("jsonb");

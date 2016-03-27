@@ -30,7 +30,40 @@ package de.swm.nis.logicaldecoding.parser.domain;
 public class Cell {
 
 	public enum Type {
-		text, varchar, character, bool, integer, real, doubleprec, numeric, date, timestamp, interval, geometry, json, jsonb, tsvector, uuid
+		text(true, true), 
+		varchar(true, true), 
+		character(true, false), 
+		bool(false, false), 
+		integer(false, false), 
+		bigint(false, false), 
+		real(false, false), 
+		doubleprec(false, false), 
+		numeric(false, false), 
+		date(true, true), 
+		timestamp(true, false),
+		timestamptz(true, false),
+		interval(true, false), 
+		geometry(true, true), 
+		json(false, false), 
+		jsonb(false, false), 
+		tsvector(true, false), 
+		uuid(true, false);
+		
+		private boolean quotedInJson;
+		private boolean quotedInInput;
+		
+		private Type(boolean quotedInJson, boolean quotedInInput) {
+			this.quotedInJson = quotedInJson;
+			this.quotedInInput = quotedInInput;
+		}
+		
+		boolean isQuotedInJson() {
+			return quotedInJson;
+		}
+		
+		boolean isQuotedInInput() {
+			return quotedInInput;
+		};
 	};
 
 	private String name;
@@ -60,7 +93,7 @@ public class Cell {
 
 	private void unquoteStrings() {
 		if (!value.equals("null")) {
-			if (this.type == Type.text || this.type == Type.date || this.type == Type.geometry || this.type == Type.varchar) {
+			if (this.type.isQuotedInInput()) {
 				int length = value.length();
 				value = value.substring(1, length - 1);
 			}
@@ -77,7 +110,6 @@ public class Cell {
 
 	public void setValue(String value) {
 		this.value = value;
-//		unquoteStrings();
 	}
 
 
@@ -111,6 +143,10 @@ public class Cell {
 				this.type = Type.valueOf("timestamp");
 				break;
 			}
+			case "timestamp with time zone": {
+				this.type = Type.valueOf("timestamptz");
+				break;
+			}
 			default:
 				this.type = Type.valueOf(typeAsString);
 		}
@@ -128,6 +164,18 @@ public class Cell {
 		this.name = name;
 	}
 
+	
+	public String getJson() {
+		String jsonKey = new String("\"" + getName() + "\": ");
+		String jsonValue = new String(getValue());
+		if (getType().isQuotedInJson()) {
+			jsonValue = new String("\"" + getValue() + "\"");
+		}
+		if (getValue().equals("null")) {
+			jsonValue = "null";
+		}
+		return jsonKey + jsonValue;
+	}
 
 
 	@Override
