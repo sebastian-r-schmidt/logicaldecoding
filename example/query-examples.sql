@@ -1,0 +1,2 @@
+#give me all events that modified table 'testtable' and where the 'id' column before the change was set to '6'
+SELECT * FROM metadata.changeset WHERE tablename = 'testtable' and oldvalues #> '{id}' = '6';

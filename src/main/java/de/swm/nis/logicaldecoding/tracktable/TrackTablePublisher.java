@@ -68,6 +68,33 @@ public class TrackTablePublisher {
 	@Value("${tracktable.tablename}")
 	private String tableName;
 	
+	@Value("${tracktable.commitTimestampColumn:commit_ts}")
+	private String commitTimestampColumnName;
+	
+	@Value("${tracktable.transactionIdColumn:transaction_id}")
+	private String txIdColumnName;
+	
+	@Value("${tracktable.jsonOldValuesColumn:oldvalues}")
+	private String jsonOldValuesColumnName;
+	
+	@Value("${tracktable.jsonNewValuesColumn:newvalues}")
+	private String jsonNewValuesColumName;
+	
+	@Value("${tracktable.metaInfoColumn:metadata}")
+	private String metadataColumnName;
+	
+	@Value("${tracktable.regionColumn:region}") 
+	private String regionColumnName;
+	
+	@Value("${tracktable.tableColumn:tablename}") 
+	private String tableColumnName;
+	
+	@Value("${tracktable.schemaColumn:schemaname}") 
+	private String schemaColumnName;
+	
+	@Value("${tracktable.transactionTypeColumn:type}") 
+	private String transactionTypeColumnName;
+	
 	@Value("#{'${tracktable.metainfo.searchpatterns}'.split(',')}")
 	private List<String> metaInfoSearchPatterns;
 	
@@ -106,14 +133,19 @@ public class TrackTablePublisher {
 			byte[] wkb = wkbWriter.write(geomFactory.toGeometry(envelope));
 			params = new Object[]{wkb, type, changedTableSchema, changedTableName, transactionId, timestamp, metadata, oldjson, newjson};
 			types = new int[] {Types.BINARY, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.BIGINT, Types.OTHER, Types.VARCHAR, Types.OTHER, Types.OTHER};
-			sql = "INSERT INTO "+schemaname + "." + tableName + "(region, type, schemaname, tablename, transactionId, timestamp, metadata, oldvalues, newvalues) VALUES (?,?,?,?,?,?,?,?,?)";
+			sql = "INSERT INTO "+schemaname + "." + tableName + "("+regionColumnName
+				+", "+transactionTypeColumnName + ", "+schemaColumnName+", "+tableColumnName+", "+txIdColumnName
+				+", "+commitTimestampColumnName+", "+metadataColumnName+", "+jsonOldValuesColumnName+", "+jsonNewValuesColumName
+				+") VALUES (?,?,?,?,?,?,?,?,?)";
 		}
 		else {
 			//geometry is null, do not include it in SQL insert statement
 			params = new Object[]{type, changedTableSchema, changedTableName, transactionId, timestamp, metadata, oldjson, newjson};
 			types = new int[] {Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.BIGINT, Types.OTHER, Types.VARCHAR, Types.OTHER, Types.OTHER};
-			sql = "INSERT INTO "+schemaname + "." + tableName + "(type, schemaname, tablename, transactionId, timestamp, metadata, oldvalues, newvalues) VALUES (?,?,?,?,?,?,?,?)";
-			
+			sql = "INSERT INTO "+schemaname + "." + tableName + "("
+					+transactionTypeColumnName + ", "+schemaColumnName+", "+tableColumnName+", "+txIdColumnName
+					+", "+commitTimestampColumnName+", "+metadataColumnName+", "+jsonOldValuesColumnName+", "+jsonNewValuesColumName
+					+") VALUES (?,?,?,?,?,?,?,?)";
 		}
 		template.update(sql, params,types);
 	}
