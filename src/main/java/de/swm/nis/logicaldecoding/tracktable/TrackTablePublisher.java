@@ -83,7 +83,7 @@ public class TrackTablePublisher {
 			GeometryFactory geomFactory = new GeometryFactory(new PrecisionModel(), epsgCode);
 			WKBWriter wkbWriter = new WKBWriter(2, true);
 			byte[] wkb = wkbWriter.write(geomFactory.toGeometry(envelope));
-			params = new Object[]{wkb, type, changedTableSchema, changedTableName, transactionId, timestamp, metadata,oldjson, newjson};
+			params = new Object[]{wkb, type, changedTableSchema, changedTableName, transactionId, timestamp, metadata, oldjson, newjson};
 			types = new int[] {Types.BINARY, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.BIGINT, Types.OTHER, Types.VARCHAR, Types.OTHER, Types.OTHER};
 			sql = "INSERT INTO "+schemaname + "." + tableName + "(region, type, schemaname, tablename, transactionId, timestamp, metadata, oldvalues, newvalues) VALUES (?,?,?,?,?,?,?,?,?)";
 		}
@@ -159,8 +159,7 @@ public class TrackTablePublisher {
 	
 	private PGobject getTimestamp(DmlEvent event) {
 		PGobject timestamp = new PGobject();
-		//timestamp.setType("timestamp with time zone"); //doesnt work
-		timestamp.setType("timestamp"); //doesnt work
+		timestamp.setType("timestamp");
 		try {
 			timestamp.setValue( event.getCommitTime().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
 		} catch (SQLException e) {
