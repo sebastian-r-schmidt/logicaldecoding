@@ -3,7 +3,7 @@
 Logical Deocding introduced with PostgreSQL 9.4 makes it possible to keep track of all commits into your database in commit order. This opens possibilities for auditing and other cool stuff.
 
 No triggers needed.
-No Changes needed in your applications writing data.
+No changes needed in your applications writing data.
 
 This software is targeted for PostGIS users and can do two things:
 
@@ -11,13 +11,20 @@ This software is targeted for PostGIS users and can do two things:
 2. publishing changes into a GeoWebCache instance triggering Seed, Reseed, or Truncate operations in the region the change has happened.
 
 ###Prerequisites
-PostgreSQL 9.4 or higher
++ PostgreSQL 9.4 or higher
++ Java 8 JRE (tested with Oracle JRE)
 
 ####PostgreSQL Configuration
 1. In your postgresql.conf set wal_level to logical
-2. In your Postgresql.conf set max_replication_slots to > 1
-3. create a replication slot:
+2. In your postgresql.conf set max_replication_slots to > 1
+3. Set the tables you want to audit to replica identity full
+```
+ALTER TABLE schema.tablename REPLICA IDENTITY FULL;
+```
+4. create a replication slot:
+```
 SELECT * FROM pg_create_logical_replication_slot('repslot_test', 'test_decoding');
+```
 
 ###Usage
 ```
@@ -34,15 +41,24 @@ Those values will override the .properties file packaged inside the jar file.
 
 see src/main/resources/application.properties for examples.
 
+###Cleanup
+Make sure you drop your replication slot when you do not need it anymore and no consumer is attached to it.
+Otherwise your PostgreSQL instance will keep all WAL files forver inside pg_xlog directory
+and bloat your harddisk:
+```
+SELECT * FROM pg_drop_replication_slot('repslot_test');
+```
+
+Sample SQL Statements for management of replication slots can be found inside the
+src/main/resources directory. 
+
 ###Used Libraries
 
-Spring Boot
-
-ANTLR v4.5 for parsing
-
-Guava
-
-Jackson for JSON generation
++ Spring Boot
++ ANTLR v4.5 for parsing
++ Google Guava
++ Jackson for JSON generation
++ JTS for PostGIS Geometry processing
 
 ####License
 
