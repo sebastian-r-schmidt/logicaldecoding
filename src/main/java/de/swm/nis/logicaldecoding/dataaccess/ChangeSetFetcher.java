@@ -64,7 +64,7 @@ public class ChangeSetFetcher {
 		
 		//Parameter 1: replication Slot name
 		//Parameter 2: upto_n_changes
-		String sql = "SELECT * from pg_logical_slot_get_changes(?, NULL, ?)";
+		String sql = "SELECT * from pg_logical_slot_get_changes(?, NULL, ?, 'include-timestamp', 'on')";
 		List<ChangeSetDAO> changes = template.query(sql, new Object[]{slotname, maxRows}, changeSetRowMapper);
 		return changes;
 	}

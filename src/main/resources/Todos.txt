@@ -1,5 +1,4 @@
 * (+) Region of changes: what to do with puntal objects? They do not fit into a "Polygon" column
-* (+) Include Parsing of Commit timestamps.
 * (o) Check Versions of referenced Libraries.
 * (-) Restriction: Check about column names with quotes (ie. reserved keywords, blanks, Uppercase etc.), currently not supported. 
 * (-) Cell.Type: move parsing of datatypes into enum type.

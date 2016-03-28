@@ -46,6 +46,11 @@ public class ParserListener extends PgLogicalDecodingBaseListener {
 	public void enterTxStatement(TxStatementContext ctx) {
 		currentEvent = new TxEvent();
 	}
+	
+	@Override
+	public void exitCommitTimestamp(PgLogicalDecodingParser.CommitTimestampContext ctx) {
+		((TxEvent)currentEvent).setCommitTime(ctx.getText());
+	}
 
 	@Override
 	public void enterInsertOp(InsertOpContext ctx) {

@@ -31,10 +31,8 @@ logline
 
 txStatement
 :
-	(
-		'BEGIN '
-		| 'COMMIT '
-	) Number
+		('BEGIN ' Number )
+		|( 'COMMIT ' Number (' (at 'commitTimestamp ')')?)
 ;
 
 Number
@@ -42,6 +40,17 @@ Number
 	[0-9]+
 ;
 
+commitTimestamp:
+	Date ' ' Time
+;
+
+Date: 
+	[0-9][0-9][0-9][0-9]'-'[0-9][0-9]'-'[0-9][0-9]
+;
+
+Time:
+	[0-9][0-9]':'[0-9][0-9]':'[0-9][0-9]('+'|'-')([0-9])+
+;
 dmlStatement
 :
 	'table ' table ': '

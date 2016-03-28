@@ -59,6 +59,15 @@ public class LogParserTest {
 		Event row = parser.parseLogLine("COMMIT 15228819");
 		assertTrue(row instanceof TxEvent);
 	}
+	
+	@Test
+	public void testParseCommitWithTimestamp() {
+		Event row = parser.parseLogLine("COMMIT 15228819 (at 2000-01-01 01:00:00+01)");
+		assertTrue(row instanceof TxEvent);
+		TxEvent txEvent = (TxEvent)row;
+		assertNotNull(txEvent.getCommitTime());
+		assertEquals(2000, txEvent.getCommitTime().getYear());
+	}
 
 
 

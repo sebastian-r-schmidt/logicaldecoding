@@ -21,9 +21,12 @@ SOFTWARE.
  */
 package de.swm.nis.logicaldecoding;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -46,6 +49,7 @@ import de.swm.nis.logicaldecoding.gwc.GWCInvalidator;
 import de.swm.nis.logicaldecoding.parser.PgParser;
 import de.swm.nis.logicaldecoding.parser.domain.DmlEvent;
 import de.swm.nis.logicaldecoding.parser.domain.Event;
+import de.swm.nis.logicaldecoding.parser.domain.TxEvent;
 import de.swm.nis.logicaldecoding.tracktable.TrackTablePublisher;
 
 
@@ -101,14 +105,25 @@ public class RefreshCacheService {
 		log.debug("Start pulling changes...");
 		Collection<ChangeSetDAO> changes = changesetFetcher.fetch(replicationSlotName, numChangestoFetch);
 		Collection<DmlEvent> events = new ArrayList<DmlEvent>();
-
+		Map<Long,ZonedDateTime> transactionCommitTimes = new HashMap<Long, ZonedDateTime>();
+		
 		for (ChangeSetDAO change : changes) {
 			log.info(change.toString());
 			Event event = parser.parseLogLine(change.getData());
+			event.setTransactionId(change.getTransactionId());
 			// This is a change to consider
 			if (event instanceof DmlEvent) {
 				events.add((DmlEvent)event);
 			}
+			else if (event instanceof TxEvent) {
+				if (event.getCommitTime() !=null) {
+					transactionCommitTimes.put(event.getTransactionId(), event.getCommitTime());
+				}
+			}
+		}
+		
+		for(DmlEvent event : events) {
+			event.setCommitTime(transactionCommitTimes.get(event.getTransactionId()));
 		}
 		
 		Predicate<DmlEvent> predicate = new Predicate<DmlEvent>() {

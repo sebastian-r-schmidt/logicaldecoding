@@ -65,7 +65,7 @@ public class ChangeSetFetcherTest {
 		item1.setTransactionId(12345);
 		changes.add(item1);
 		
-		when(jdbctemplate.query(eq("SELECT * from pg_logical_slot_get_changes(?, NULL, ?)"),
+		when(jdbctemplate.query(eq("SELECT * from pg_logical_slot_get_changes(?, NULL, ?, 'include-timestamp', 'on')"),
 						refEq(new Object[] { "testslot", 100 }), Matchers.<RowMapper<ChangeSetDAO>>any())).thenReturn(changes);
 
 		ChangeSetFetcher fetcher = new ChangeSetFetcher(jdbctemplate);

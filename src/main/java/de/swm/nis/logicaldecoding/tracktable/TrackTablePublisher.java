@@ -23,6 +23,7 @@ package de.swm.nis.logicaldecoding.tracktable;
 
 import java.sql.SQLException;
 import java.sql.Types;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -88,6 +89,8 @@ public class TrackTablePublisher {
 		String changedTableSchema = event.getSchemaName();
 		String changedTableName = event.getTableName();
 		String type = event.getType().toString();
+		Long transactionId = event.getTransactionId();
+		PGobject timestamp = getTimestamp(event);
 		PGobject oldjson = getJsonOldValues(event);
 		PGobject newjson = getJsonNewValues(event);
 		
@@ -101,15 +104,15 @@ public class TrackTablePublisher {
 			GeometryFactory geomFactory = new GeometryFactory(new PrecisionModel(), epsgCode);
 			WKBWriter wkbWriter = new WKBWriter(2, true);
 			byte[] wkb = wkbWriter.write(geomFactory.toGeometry(envelope));
-			params = new Object[]{wkb, type, changedTableSchema, changedTableName, metadata,oldjson, newjson};
-			types = new int[] {Types.BINARY, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR,Types.VARCHAR, Types.OTHER, Types.OTHER};
-			sql = "INSERT INTO "+schemaname + "." + tableName + "(region, type, schemaname, tablename, metadata, oldvalues, newvalues) VALUES (?,?,?,?,?,?,?)";
+			params = new Object[]{wkb, type, changedTableSchema, changedTableName, transactionId, timestamp, metadata, oldjson, newjson};
+			types = new int[] {Types.BINARY, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.BIGINT, Types.OTHER, Types.VARCHAR, Types.OTHER, Types.OTHER};
+			sql = "INSERT INTO "+schemaname + "." + tableName + "(region, type, schemaname, tablename, transactionId, timestamp, metadata, oldvalues, newvalues) VALUES (?,?,?,?,?,?,?,?,?)";
 		}
 		else {
 			//geometry is null, do not include it in SQL insert statement
-			params = new Object[]{type, changedTableSchema, changedTableName, metadata, oldjson, newjson};
-			types = new int[] {Types.VARCHAR, Types.VARCHAR, Types.VARCHAR,Types.VARCHAR, Types.OTHER, Types.OTHER};
-			sql = "INSERT INTO "+schemaname + "." + tableName + "(type, schemaname, tablename, metadata, oldvalues, newvalues) VALUES (?,?,?,?,?,?)";
+			params = new Object[]{type, changedTableSchema, changedTableName, transactionId, timestamp, metadata, oldjson, newjson};
+			types = new int[] {Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.BIGINT, Types.OTHER, Types.VARCHAR, Types.OTHER, Types.OTHER};
+			sql = "INSERT INTO "+schemaname + "." + tableName + "(type, schemaname, tablename, transactionId, timestamp, metadata, oldvalues, newvalues) VALUES (?,?,?,?,?,?,?,?)";
 			
 		}
 		template.update(sql, params,types);
@@ -173,5 +176,16 @@ public class TrackTablePublisher {
 			log.error("Error while setting JSONB of changed Objects into SQL PGobject type:", e);
 		}
 		return pgobject;
+	}
+	
+	private PGobject getTimestamp(DmlEvent event) {
+		PGobject timestamp = new PGobject();
+		timestamp.setType("timestamp");
+		try {
+			timestamp.setValue( event.getCommitTime().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+		} catch (SQLException e) {
+			log.error("Error while setting Timestamp SQL PGobject type:", e);
+		}
+		return timestamp;
 	}
 }
