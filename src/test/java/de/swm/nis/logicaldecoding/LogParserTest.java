@@ -68,9 +68,34 @@ public class LogParserTest {
 		assertNotNull(txEvent.getCommitTime());
 		assertEquals(2000, txEvent.getCommitTime().getYear());
 	}
-
-
-
+	
+	@Test
+	public void testParseCommitWithTimestampSecondFractions() {
+		Event row = parser.parseLogLine("COMMIT 15228819 (at 2016-03-29 08:25:43.3+02)");
+		assertTrue(row instanceof TxEvent);
+		TxEvent txEvent = (TxEvent)row;
+		assertNotNull(txEvent.getCommitTime());
+		assertEquals(2016, txEvent.getCommitTime().getYear());
+	}
+	
+	@Test
+	public void testParseCommitWithTimestampSecondHundreds() {
+		Event row = parser.parseLogLine("COMMIT 15228819 (at 2016-03-29 08:25:43.35+02)");
+		assertTrue(row instanceof TxEvent);
+		TxEvent txEvent = (TxEvent)row;
+		assertNotNull(txEvent.getCommitTime());
+		assertEquals(2016, txEvent.getCommitTime().getYear());
+	}
+	
+	@Test
+	public void testParseCommitWithTimestampMillis() {
+		Event row = parser.parseLogLine("COMMIT 15228819 (at 2000-01-01 01:00:00.303+02)");
+		assertTrue(row instanceof TxEvent);
+		TxEvent txEvent = (TxEvent)row;
+		assertNotNull(txEvent.getCommitTime());
+		assertEquals(2000, txEvent.getCommitTime().getYear());
+	}
+	
 	@Test
 	public void testParseInsert() {
 		Event event = parser
@@ -235,5 +260,4 @@ public class LogParserTest {
 		assertEquals("\"value\": {\"jobsite_id\": -2.8}", cell.getJson());
 	}
 	
-
 }

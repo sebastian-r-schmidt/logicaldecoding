@@ -23,6 +23,8 @@ package de.swm.nis.logicaldecoding.parser.domain;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 
 public abstract class Event {
 	
@@ -60,7 +62,13 @@ public abstract class Event {
 	}
 	
 	public void setCommitTime(String timestampString) {
-		commitTime = ZonedDateTime.parse(timestampString, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssx"));
+		
+		DateTimeFormatter formatter = new DateTimeFormatterBuilder()
+	    .appendPattern("yyyy-MM-dd HH:mm:ss")
+	    .appendFraction(ChronoField.MICRO_OF_SECOND, 0, 3, true)
+	    .appendPattern("x")
+	    .toFormatter();
+		commitTime = ZonedDateTime.parse(timestampString,formatter);
 	}
 	
 	public ZonedDateTime getCommitTime() {
