@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -117,7 +118,6 @@ public class GWCInvalidator {
 
 
 
-	//TODO find out if we were successfull and catch exceptions on errors (HTTP 500, no connection possible, ....)
 	private void postSeedRequest(Envelope envelope) {
 
 		String gwcurl = gwcBaseUrl + "seed/" + layername + ".json";
@@ -131,7 +131,14 @@ public class GWCInvalidator {
 		HttpEntity<GwcSeedDAO> httpentity = new HttpEntity<GwcSeedDAO>(new GwcSeedDAO(request), createHeaders(
 				gwcUserName, gwcPassword));
 		ResponseEntity response = template.exchange(gwcurl, HttpMethod.POST, httpentity, String.class);
-		log.info("HTTP Return code: " + response.getStatusCode());
+		HttpStatus returncode = response.getStatusCode();
+		if (!returncode.is2xxSuccessful()) {
+			log.warn("HTTP Call to " + gwcurl + " was not successfull, Status code: " + response.getStatusCode());
+		}
+		else {
+			log.debug("HTTP Call to "+ gwcurl + "succeeded");
+		}
+		
 	}
 
 
