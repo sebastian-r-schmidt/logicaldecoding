@@ -9,6 +9,13 @@ enddate date
 );
 ALTER TABLE data.jobsite REPLICA IDENTITY full;
 
+CREATE TABLE data.address (
+address_id serial primary key,
+position geometry(Point,4326),
+housenumber text
+);
+ALTER TABLE data.address REPLICA IDENTITY full;
+
 CREATE schema metadata;
 CREATE TABLE metadata.changeset
 (
