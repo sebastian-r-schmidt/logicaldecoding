@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.Future;
 
-import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,6 +37,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Base64Utils;
 import org.springframework.web.client.RestTemplate;
 
 import com.vividsolutions.jts.geom.Envelope;
@@ -160,8 +160,8 @@ public class GWCInvalidator {
 		return new HttpHeaders() {
 			{
 				String auth = username + ":" + password;
-				byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("US-ASCII")));
-				String authHeader = "Basic " + new String(encodedAuth);
+				String encodedAuth = Base64Utils.encodeToUrlSafeString(auth.getBytes(Charset.forName("US-ASCII")));
+				String authHeader = "Basic " + encodedAuth;
 				set("Authorization", authHeader);
 			}
 		};
