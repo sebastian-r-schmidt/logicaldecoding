@@ -1,4 +1,3 @@
-* (o) Check Versions of referenced Libraries.
 * (-) Restriction: Check about column names with quotes (ie. reserved keywords, blanks, Uppercase etc.), currently not supported. 
 * (-) Enable mode for multipolygons describing a move operation (not an envelope over old and new Geometry).
 
