@@ -50,6 +50,12 @@ and bloat your harddisk:
 SELECT * FROM pg_drop_replication_slot('repslot_test');
 ```
 
+To check how far "behind master" your replication slot is, check
+```
+select pg_xlog_location_diff(pg_current_xlog_location(),(select restart_lsn from pg_replication_slots where slot_name='repslot_test'));
+```
+which will give you the number of bytes that still need to be checked. Values around 50 can be treated as zero.
+
 Sample SQL Statements for management of replication slots can be found in the
 src/main/resources directory. 
 
