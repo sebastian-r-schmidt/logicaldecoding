@@ -65,7 +65,7 @@ public abstract class Event {
 		
 		DateTimeFormatter formatter = new DateTimeFormatterBuilder()
 	    .appendPattern("yyyy-MM-dd HH:mm:ss")
-	    .appendFraction(ChronoField.MICRO_OF_SECOND, 0, 3, true)
+	    .appendFraction(ChronoField.MICRO_OF_SECOND, 0, 6, true)
 	    .appendPattern("x")
 	    .toFormatter();
 		commitTime = ZonedDateTime.parse(timestampString,formatter);

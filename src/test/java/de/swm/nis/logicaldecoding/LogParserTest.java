@@ -97,6 +97,21 @@ public class LogParserTest {
 	}
 	
 	@Test
+	public void testParseCommitWithTimestampNanos() {
+		Event row = parser.parseLogLine("COMMIT 15228819 (at 2016-07-08 19:58:13.532396+02)");
+		assertTrue(row instanceof TxEvent);
+		TxEvent txEvent = (TxEvent)row;
+		assertNotNull(txEvent.getCommitTime());
+		assertEquals(2016, txEvent.getCommitTime().getYear());
+		assertEquals(7, txEvent.getCommitTime().getMonthValue());
+		assertEquals(8, txEvent.getCommitTime().getDayOfMonth());
+		assertEquals(19, txEvent.getCommitTime().getHour());
+		assertEquals(58, txEvent.getCommitTime().getMinute());
+	}
+	
+	
+	
+	@Test
 	public void testParseInsert() {
 		Event event = parser
 				.parseLogLine("table tmp.landkreis_neu: INSERT: alkis_id[text]:'LANDSBERG' beschriftung_pos[geometry]:null datenquelle[integer]:3 erfasst_am[date]:'2015-11-05' erfasst_durch[text]:'Schmidt.Sebastian2' the_geom[geometry]:'0106000020EC7A0000010000000103000000010000000C0000003B84A88392C750411155771E44765441900A7B95C9C4504109F537F0098C544156B5B1BDAFD050412B43E90B9F925441B01595649CDE5041DDD9BEDBDF925441411B22CC85EB5041978D3C8D989054410B76780B89EC5041E8A686D4748554419CBE9CBF34E65041031B275B547B54412A9A38A985D75041AC27CC7EC2755441450ED92F65CD504173159AF36A6E5441F53726354BC55041EF06C602AF6F544113194F8685C3504118721F00BC7354413B84A88392C750411155771E44765441' geaendert_am[date]:null geaendert_durch[text]:null landkreisschluessel[integer]:1889 name[text]:'Landsberg am Lech' landkreis_id[integer]:35 _version[integer]:4854754 kuerzel[text]:'LL'");
