@@ -13,7 +13,7 @@ This software is targeted for PostGIS users and can do two things:
 
 ###Prerequisites
 + PostgreSQL 9.4 or higher
-+ Java 8 JRE (tested with Oracle JRE)
++ Java 8 JRE (tested with Oracle JRE and OpenJDK JRE)
 
 ####PostgreSQL Configuration
 1. In your postgresql.conf set wal_level to logical
