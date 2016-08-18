@@ -24,6 +24,7 @@
 		<jts.version>1.13</jts.version>
 		<antlr.version>4.5.2</antlr.version>
 		<guava.version>19.0</guava.version>
+		<jacoco.version>0.7.7.201606060606</jacoco.version>
 	</properties>
 
 	<dependencies>
@@ -63,6 +64,11 @@
 			<artifactId>antlr4-runtime</artifactId>
 			<version>${antlr.version}</version>
 			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
@@ -110,6 +116,33 @@
 					</execution>
 				</executions>
 			</plugin>
+
+			<!-- mvn help:describe -Dplugin=org.jacoco:jacoco-maven-plugin -Ddetail -->
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${jacoco.version}</version>
+				<configuration>
+					<destFile>${basedir}/target/coverage-reports/jacoco-unit.exec</destFile>
+					<dataFile>${basedir}/target/coverage-reports/jacoco-unit.exec</dataFile>
+				</configuration>
+				<executions>
+					<execution>
+						<id>jacoco-initialize</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>jacoco-site</id>
+						<phase>package</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
 		</plugins>
 	</build>
 
