@@ -23,6 +23,7 @@ package de.swm.nis.logicaldecoding.tracktable;
 
 import java.sql.SQLException;
 import java.sql.Types;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -227,7 +228,12 @@ public class TrackTablePublisher {
 		PGobject timestamp = new PGobject();
 		timestamp.setType("timestamp");
 		try {
-			timestamp.setValue( event.getCommitTime().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+			ZonedDateTime time = event.getCommitTime();
+			if (time == null) {
+				timestamp.setValue("1970-01-01T00:00:00+00:00");
+				return timestamp;
+			}
+				timestamp.setValue(time.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
 		} catch (SQLException e) {
 			log.error("Error while setting Timestamp SQL PGobject type:", e);
 		}
