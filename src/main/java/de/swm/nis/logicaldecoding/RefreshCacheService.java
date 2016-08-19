@@ -89,11 +89,15 @@ public class RefreshCacheService {
 	
 	@Value("${postgresql.replicationSlotName}")
 	private String replicationSlotName;
+	
+	@Autowired
+	private VersionHelper versionHelper;
 
 
 
 	@PostConstruct
 	public void init() {
+		log.info(versionHelper.determineVersion());
 		log.info("looking for changes in Database every " + schedulingDelay + " milliseconds");
 	}
 
