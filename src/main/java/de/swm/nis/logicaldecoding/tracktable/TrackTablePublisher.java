@@ -101,12 +101,20 @@ public class TrackTablePublisher {
 	
 	@Value("${postgresql.epsgCode}")
 	private int epsgCode;
-	
+
 	@Value("${pointObjects.miniumSize}")
 	private double minSize=0.00001f;
 	
 	@Value("${pointObjects.buffer}")
-	private double bufferSize=0.0001f; 
+	private double bufferSize=0.0001f;
+	
+	public TrackTablePublisher() {
+		
+	}
+	
+	public TrackTablePublisher(JdbcTemplate template) {
+		this.template = template;
+	}
 	
 	@Async
 	public Future<String> publish(Collection<DmlEvent> events) {
@@ -238,5 +246,21 @@ public class TrackTablePublisher {
 			log.error("Error while setting Timestamp SQL PGobject type:", e);
 		}
 		return timestamp;
+	}
+	
+	public int getEpsgCode() {
+		return epsgCode;
+	}
+
+	public void setEpsgCode(int epsgCode) {
+		this.epsgCode = epsgCode;
+	}
+
+	public List<String> getMetaInfoSearchPatterns() {
+		return metaInfoSearchPatterns;
+	}
+
+	public void setMetaInfoSearchPatterns(List<String> metaInfoSearchPatterns) {
+		this.metaInfoSearchPatterns = metaInfoSearchPatterns;
 	}
 }
