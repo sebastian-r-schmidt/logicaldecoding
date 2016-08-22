@@ -1,3 +1,5 @@
+![Travis CI build status](https://travis-ci.org/sebastian-r-schmidt/logicaldecoding.svg?branch=master)
+
 # Parsing PostgreSQL Logical Decoding Output
 
 Logical Deocding introduced with PostgreSQL 9.4 makes it possible to keep track of all commits into your database in commit order. This opens possibilities for auditing and other cool stuff.
